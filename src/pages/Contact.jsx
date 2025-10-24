@@ -1,262 +1,3 @@
-// import React, { useRef, useEffect, useState } from 'react';
-// import { gsap } from 'gsap';
-// import axios from 'axios';
-
-// const Contact = () => {
-//   const formRef = useRef(null);
-//   const [formData, setFormData] = useState({
-//     name: '',
-//     email: '',
-//     message: ''
-//   });
-//   const [isSubmitting, setIsSubmitting] = useState(false);
-//   const [submitStatus, setSubmitStatus] = useState('');
-//   const [errorMessage, setErrorMessage] = useState('');
-
-//   useEffect(() => {
-//     const tl = gsap.timeline();
-//     tl.fromTo('.contact-heading',
-//       { y: 50, opacity: 0 },
-//       { y: 0, opacity: 1, duration: 1 }
-//     ).fromTo('.contact-form',
-//       { x: -50, opacity: 0 },
-//       { x: 0, opacity: 1, duration: 0.8 },
-//       '-=0.5'
-//     ).fromTo('.contact-info',
-//       { x: 50, opacity: 0 },
-//       { x: 0, opacity: 1, duration: 0.8 },
-//       '-=0.5'
-//     );
-//   }, []);
-
-//   const handleChange = (e) => {
-//     setFormData({
-//       ...formData,
-//       [e.target.name]: e.target.value
-//     });
-//   };
-
-// const handleSubmit = async (e) => {
-//   e.preventDefault();
-//   e.stopPropagation();
-  
-//   console.log('🔄 Form submission started...');
-//   setIsSubmitting(true);
-//   setSubmitStatus('');
-//   setErrorMessage('');
-
-//   try {
-//     console.log('📤 Sending form data to backend...');
-    
-//     // Increase timeout to 30 seconds and remove withCredentials
-//     const res = await axios.post('http://localhost:5000/api/contact', formData, {
-//       timeout: 30000, // 30 seconds timeout
-//       headers: {
-//         'Content-Type': 'application/json',
-//       }
-//     });
-    
-//     console.log('✅ Backend response received:', res.data);
-    
-//     if (res.data.success) {
-//       setSubmitStatus('success');
-//       setFormData({ name: '', email: '', message: '' });
-      
-//       setTimeout(() => {
-//         setSubmitStatus('');
-//       }, 5000);
-//     } else {
-//       setSubmitStatus('error');
-//       setErrorMessage(res.data.message || 'Failed to send message.');
-//     }
-//   } catch (error) {
-//     console.error('❌ Form submission error:', error);
-    
-//     let errorMsg = 'Failed to send message. Please try again.';
-    
-//     if (error.code === 'ECONNABORTED') {
-//       errorMsg = 'Request took too long. But your message might have been sent - please check your email for confirmation.';
-//     } else if (error.response) {
-//       errorMsg = error.response.data?.message || `Server error: ${error.response.status}`;
-//     } else if (error.request) {
-//       errorMsg = 'No response from server, but your message might have been sent. Please check your email.';
-//     } else {
-//       errorMsg = error.message;
-//     }
-    
-//     setSubmitStatus('error');
-//     setErrorMessage(errorMsg);
-//   } finally {
-//     setIsSubmitting(false);
-//   }
-// };
-
-//   return (
-//     <div className="min-h-screen pt-20 px-6 py-8">
-//       <div className="container mx-auto">
-//         <div className="text-center mb-12">
-//           <h1 className="contact-heading text-5xl font-bold mb-4">Get In Touch</h1>
-//           <p className="text-gray-400 text-xl max-w-2xl mx-auto">
-//             Have a project in mind? Let's discuss how we can bring your 3D vision to life.
-//           </p>
-//         </div>
-
-//         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 max-w-6xl mx-auto">
-//           {/* Contact Form */}
-//           <div className="contact-form">
-//             <div className="glass-effect p-8 rounded-2xl">
-//               <form onSubmit={handleSubmit} className="space-y-6">
-//                 <div>
-//                   <label className="block text-sm font-medium mb-2">Your Name *</label>
-//                   <input
-//                     type="text"
-//                     name="name"
-//                     value={formData.name}
-//                     onChange={handleChange}
-//                     required
-//                     disabled={isSubmitting}
-//                     className="w-full px-4 py-3 bg-slate-800 rounded-lg border border-slate-700 focus:border-blue-500 focus:outline-none transition-colors disabled:opacity-50"
-//                     placeholder="Enter your name"
-//                   />
-//                 </div>
-
-//                 <div>
-//                   <label className="block text-sm font-medium mb-2">Email Address *</label>
-//                   <input
-//                     type="email"
-//                     name="email"
-//                     value={formData.email}
-//                     onChange={handleChange}
-//                     required
-//                     disabled={isSubmitting}
-//                     className="w-full px-4 py-3 bg-slate-800 rounded-lg border border-slate-700 focus:border-blue-500 focus:outline-none transition-colors disabled:opacity-50"
-//                     placeholder="Enter your email"
-//                   />
-//                 </div>
-
-//                 <div>
-//                   <label className="block text-sm font-medium mb-2">Your Message *</label>
-//                   <textarea
-//                     name="message"
-//                     value={formData.message}
-//                     onChange={handleChange}
-//                     required
-//                     disabled={isSubmitting}
-//                     rows="6"
-//                     className="w-full px-4 py-3 bg-slate-800 rounded-lg border border-slate-700 focus:border-blue-500 focus:outline-none transition-colors resize-none disabled:opacity-50"
-//                     placeholder="Tell me about your project..."
-//                   />
-//                 </div>
-
-//                 <button
-//                   type="submit"
-//                   disabled={isSubmitting}
-//                   className="w-full bg-blue-600 hover:bg-blue-700 py-4 rounded-lg font-semibold text-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
-//                 >
-//                   {isSubmitting ? (
-//                     <>
-//                       <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-//                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-//                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-//                       </svg>
-//                       Sending...
-//                     </>
-//                   ) : (
-//                     'Send Message'
-//                   )}
-//                 </button>
-
-//                 {/* Status Messages */}
-//                 {submitStatus === 'success' && (
-//                   <div className="p-4 bg-green-600 rounded-lg text-center animate-pulse">
-//                     ✅ Message sent successfully! You will receive a confirmation email shortly.
-//                   </div>
-//                 )}
-
-//                 {submitStatus === 'error' && (
-//                   <div className="p-4 bg-red-600 rounded-lg text-center">
-//                     ❌ {errorMessage}
-//                     <br />
-//                     <span className="text-sm opacity-80">Please check the console for details.</span>
-//                   </div>
-//                 )}
-//               </form>
-//             </div>
-//           </div>
-
-//           {/* Contact Information */}
-//           <div className="contact-info">
-//             <div className="space-y-8">
-//               <div className="glass-effect p-8 rounded-2xl">
-//                 <h3 className="text-2xl font-bold mb-6">Let's Create Together</h3>
-//                 <p className="text-gray-300 mb-6">
-//                   I'm always excited to take on new challenges and collaborate on innovative 
-//                   3D design projects. Whether you need architectural visualization, product 
-//                   modeling, or creative animations, I'm here to help.
-//                 </p>
-                
-//                 <div className="space-y-4">
-//                   <div className="flex items-center space-x-4">
-//                     <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center">
-//                       <span>📧</span>
-//                     </div>
-//                     <div>
-//                       <p className="text-gray-400">Email</p>
-//                       <p className="font-semibold">mukesh1152006@gmail.com</p>
-//                     </div>
-//                   </div>
-
-//                   <div className="flex items-center space-x-4">
-//                     <div className="w-12 h-12 bg-green-600 rounded-full flex items-center justify-center">
-//                       <span>💼</span>
-//                     </div>
-//                     <div>
-//                       <p className="text-gray-400">Availability</p>
-//                       <p className="font-semibold">Open for Projects</p>
-//                     </div>
-//                   </div>
-
-//                   <div className="flex items-center space-x-4">
-//                     <div className="w-12 h-12 bg-purple-600 rounded-full flex items-center justify-center">
-//                       <span>⚡</span>
-//                     </div>
-//                     <div>
-//                       <p className="text-gray-400">Response Time</p>
-//                       <p className="font-semibold">Within 24 Hours</p>
-//                     </div>
-//                   </div>
-//                 </div>
-//               </div>
-
-//               {/* Services Offered */}
-//               <div className="glass-effect p-8 rounded-2xl">
-//                 <h4 className="text-xl font-bold mb-4">Services I Offer</h4>
-//                 <div className="grid grid-cols-2 gap-4">
-//                   <div className="bg-slate-800 p-4 rounded-lg text-center">
-//                     <p className="font-semibold">3D Modeling</p>
-//                   </div>
-//                   <div className="bg-slate-800 p-4 rounded-lg text-center">
-//                     <p className="font-semibold">Animation</p>
-//                   </div>
-//                   <div className="bg-slate-800 p-4 rounded-lg text-center">
-//                     <p className="font-semibold">Visualization</p>
-//                   </div>
-//                   <div className="bg-slate-800 p-4 rounded-lg text-center">
-//                     <p className="font-semibold">Rendering</p>
-//                   </div>
-//                 </div>
-//               </div>
-//             </div>
-//           </div>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default Contact;
-
-
 import React, { useRef, useEffect, useState } from 'react';
 import { gsap } from 'gsap';
 import axios from 'axios';
@@ -276,6 +17,27 @@ const Contact = () => {
   const [submitStatus, setSubmitStatus] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [backendStatus, setBackendStatus] = useState('checking');
+
+  // Check backend status on component mount
+  useEffect(() => {
+    checkBackendStatus();
+  }, []);
+
+  const checkBackendStatus = async () => {
+    try {
+      console.log('🔍 Checking backend status...');
+      const response = await axios.get(`${API_BASE_URL}/api/health`, {
+        timeout: 10000,
+        validateStatus: (status) => status < 500 // Accept any status under 500 as "reachable"
+      });
+      console.log('✅ Backend is reachable:', response.data);
+      setBackendStatus('healthy');
+    } catch (error) {
+      console.error('❌ Backend check failed:', error);
+      setBackendStatus('error');
+    }
+  };
 
   // Mouse move effect for parallax
   useEffect(() => {
@@ -452,12 +214,24 @@ const Contact = () => {
     });
 
     try {
+      console.log('🔄 Sending contact form data...', {
+        name: formData.name.substring(0, 10) + '...',
+        email: formData.email,
+        messageLength: formData.message.length
+      });
+      
+      // Enhanced axios configuration with better error handling
       const res = await axios.post(`${API_BASE_URL}/api/contact`, formData, {
-        timeout: 30000,
+        timeout: 20000,
         headers: {
           'Content-Type': 'application/json',
+        },
+        validateStatus: function (status) {
+          return status < 500; // Resolve for any status code under 500
         }
       });
+      
+      console.log('✅ Response received:', res.data);
       
       if (res.data.success) {
         setSubmitStatus('success');
@@ -479,12 +253,45 @@ const Contact = () => {
         setErrorMessage(res.data.message || 'Failed to send message.');
       }
     } catch (error) {
-      console.error('Form submission error:', error);
+      console.error('❌ Form submission error:', error);
+      
+      let userErrorMessage = 'Failed to send message. ';
+      
+      if (error.code === 'ERR_NETWORK' || error.code === 'ERR_NETWORK_CHANGED') {
+        userErrorMessage += 'Network connection issue. Please check your internet connection.';
+      } else if (error.code === 'ECONNABORTED') {
+        userErrorMessage += 'Request timeout. Please try again.';
+      } else if (error.response) {
+        // Server responded with error status
+        console.error('Server error:', error.response.data);
+        userErrorMessage = error.response.data?.message || `Server error: ${error.response.status}`;
+      } else if (error.request) {
+        // Request made but no response received
+        console.error('No response received - server might be down');
+        userErrorMessage += 'Cannot connect to server. The server might be temporarily unavailable.';
+      } else {
+        // Something else happened
+        console.error('Unexpected error:', error.message);
+        userErrorMessage += 'Please try again later.';
+      }
+      
       setSubmitStatus('error');
-      setErrorMessage('Failed to send message. Please try again.');
+      setErrorMessage(userErrorMessage);
+      
+      // Update backend status if there's a network error
+      if (error.code === 'ERR_NETWORK' || error.code === 'ERR_NETWORK_CHANGED' || error.request) {
+        setBackendStatus('error');
+      }
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const retryConnection = () => {
+    setBackendStatus('checking');
+    checkBackendStatus();
+    setSubmitStatus('');
+    setErrorMessage('');
   };
 
   return (
@@ -492,6 +299,32 @@ const Contact = () => {
       ref={containerRef}
       className="min-h-screen pt-20 px-6 py-8 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 relative overflow-hidden"
     >
+      {/* Enhanced Backend Status Indicator */}
+      {backendStatus === 'checking' && (
+        <div className="fixed top-4 right-4 bg-yellow-500 text-white px-4 py-2 rounded-lg z-50 flex items-center space-x-2">
+          <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+          <span>Checking server connection...</span>
+        </div>
+      )}
+      {backendStatus === 'error' && (
+        <div className="fixed top-4 right-4 bg-red-500 text-white px-4 py-2 rounded-lg z-50 flex items-center space-x-2">
+          <div className="w-2 h-2 bg-white rounded-full"></div>
+          <span>Server connection issue</span>
+          <button 
+            onClick={retryConnection}
+            className="ml-2 bg-white text-red-500 px-2 py-1 rounded text-sm hover:bg-gray-100 transition-colors"
+          >
+            Retry
+          </button>
+        </div>
+      )}
+      {backendStatus === 'healthy' && (
+        <div className="fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg z-50 flex items-center space-x-2">
+          <div className="w-2 h-2 bg-white rounded-full"></div>
+          <span>Server connected ✓</span>
+        </div>
+      )}
+
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
         {/* Floating 3D Shapes */}
@@ -549,7 +382,7 @@ const Contact = () => {
               {/* Form Background Glow */}
               <div className="absolute -inset-1 bg-gradient-to-r from-blue-600/20 to-purple-600/20 rounded-3xl blur-xl opacity-50"></div>
               
-              <form onSubmit={handleSubmit} className="space-y-8 relative z-10">
+              <form ref={formRef} onSubmit={handleSubmit} className="space-y-8 relative z-10">
                 <div className="form-element">
                   <label className="block text-sm font-medium mb-3 text-gray-300">Your Name *</label>
                   <input
@@ -610,7 +443,7 @@ const Contact = () => {
                           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
-                        Crafting Your Message...
+                        Sending Message...
                       </>
                     ) : (
                       <>
@@ -629,7 +462,7 @@ const Contact = () => {
                       <span className="text-2xl">🎉</span>
                       <div>
                         <div className="font-bold">Message Sent Successfully!</div>
-                        <div className="text-sm opacity-90">You'll hear back from me within 24 hours</div>
+                        <div className="text-sm opacity-90">Check your email for confirmation</div>
                       </div>
                     </div>
                   </div>
@@ -642,6 +475,12 @@ const Contact = () => {
                       <div>
                         <div className="font-bold">Message Not Sent</div>
                         <div className="text-sm opacity-90">{errorMessage}</div>
+                        <button 
+                          onClick={retryConnection}
+                          className="mt-3 bg-white text-red-600 px-4 py-2 rounded-lg font-semibold hover:bg-gray-100 transition-colors"
+                        >
+                          Retry Connection
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -650,7 +489,7 @@ const Contact = () => {
             </div>
           </div>
 
-          {/* Enhanced Contact Information */}
+          {/* Your existing contact information section remains the same */}
           <div className="space-y-8">
             {/* Main Info Card */}
             <div className="info-card glass-effect p-8 rounded-3xl border border-slate-700 backdrop-blur-xl">
