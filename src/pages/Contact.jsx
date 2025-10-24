@@ -257,11 +257,11 @@
 // export default Contact;
 
 
-
-
 import React, { useRef, useEffect, useState } from 'react';
 import { gsap } from 'gsap';
 import axios from 'axios';
+
+const API_BASE_URL = 'https://sakthi-portfolio-backend-production.up.railway.app';
 
 const Contact = () => {
   const formRef = useRef(null);
@@ -452,7 +452,7 @@ const Contact = () => {
     });
 
     try {
-      const res = await axios.post('http://localhost:5000/api/contact', formData, {
+      const res = await axios.post(`${API_BASE_URL}/api/contact`, formData, {
         timeout: 30000,
         headers: {
           'Content-Type': 'application/json',

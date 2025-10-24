@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import axios from 'axios';
 
+const API_BASE_URL = 'https://sakthi-portfolio-backend-production.up.railway.app';
+
 const Admin = () => {
   const { user, login } = useAuth();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -49,7 +51,7 @@ const Admin = () => {
 
   const fetchProjects = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/projects');
+      const res = await axios.get(`${API_BASE_URL}/api/projects`);
       setProjects(res.data);
     } catch (error) {
       console.error('Error fetching projects:', error);
@@ -60,7 +62,7 @@ const Admin = () => {
     e.preventDefault();
     try {
       const token = localStorage.getItem('token');
-      await axios.post('http://localhost:5000/api/projects', newProject, {
+      await axios.post(`${API_BASE_URL}/api/projects`, newProject, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setNewProject({
@@ -85,7 +87,7 @@ const Admin = () => {
     e.preventDefault();
     try {
       const token = localStorage.getItem('token');
-      await axios.put(`http://localhost:5000/api/projects/${editingProject._id}`, editingProject, {
+      await axios.put(`${API_BASE_URL}/api/projects/${editingProject._id}`, editingProject, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setEditingProject(null);
@@ -100,7 +102,7 @@ const Admin = () => {
     if (window.confirm('Are you sure you want to delete this project?')) {
       try {
         const token = localStorage.getItem('token');
-        await axios.delete(`http://localhost:5000/api/projects/${projectId}`, {
+        await axios.delete(`${API_BASE_URL}/api/projects/${projectId}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         fetchProjects();
@@ -119,7 +121,7 @@ const Admin = () => {
     try {
       const token = localStorage.getItem('token');
       const res = await axios.post(
-        `http://localhost:5000/api/import/${importData.platform}`,
+        `${API_BASE_URL}/api/import/${importData.platform}`,
         {
           [`${importData.platform}Url`]: importData.url,
           category: importData.category,
