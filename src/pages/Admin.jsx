@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../hooks/useAuth';
 import axios from 'axios';
 
 const API_BASE_URL = 'https://sakthi-portfolio-backend-production.up.railway.app';
 
 const Admin = () => {
-  const { user, login } = useAuth();
+  const [user, setUser] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [loginData, setLoginData] = useState({ username: '', password: '' });
+  const [loginData, setLoginData] = useState({ username: 'sakthi', password: '' });
   const [projects, setProjects] = useState([]);
   const [newProject, setNewProject] = useState({
     title: '',
@@ -32,19 +31,51 @@ const Admin = () => {
   });
   const [importing, setImporting] = useState(false);
 
+  // Check if user is already logged in
   useEffect(() => {
-    if (user) {
+    const token = localStorage.getItem('token');
+    const userData = localStorage.getItem('user');
+    if (token && userData) {
+      setUser(JSON.parse(userData));
       setIsLoggedIn(true);
       fetchProjects();
     }
-  }, [user]);
+  }, []);
+
+  // Simple login function
+  const login = async (username, password) => {
+    try {
+      console.log('🔐 Attempting login with:', username);
+      
+      const response = await axios.post(`${API_BASE_URL}/api/auth/login`, {
+        username,
+        password
+      });
+
+      const { token, user } = response.data;
+      
+      // Save to localStorage
+      localStorage.setItem('token', token);
+      localStorage.setItem('user', JSON.stringify(user));
+      
+      setUser(user);
+      setIsLoggedIn(true);
+      
+      console.log('✅ Login successful');
+      return { success: true, data: response.data };
+    } catch (error) {
+      console.error('❌ Login error:', error);
+      return { 
+        success: false, 
+        message: error.response?.data?.message || 'Login failed. Check credentials.' 
+      };
+    }
+  };
 
   const handleLogin = async (e) => {
     e.preventDefault();
     const result = await login(loginData.username, loginData.password);
-    if (result.success) {
-      setIsLoggedIn(true);
-    } else {
+    if (!result.success) {
       alert(result.message);
     }
   };
@@ -160,6 +191,14 @@ const Admin = () => {
     setActiveTab('add');
   };
 
+  const logout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    setUser(null);
+    setIsLoggedIn(false);
+    setLoginData({ username: 'sakthi', password: '' });
+  };
+
   // Project categories for dropdown
   const categories = [
     '3D Modeling',
@@ -238,6 +277,12 @@ const Admin = () => {
           <div className="text-right">
             <p className="text-sm text-gray-400">Welcome back,</p>
             <p className="text-lg font-semibold text-blue-400">{user?.username}</p>
+            <button
+              onClick={logout}
+              className="mt-2 px-4 py-1 bg-red-600 hover:bg-red-700 rounded text-sm font-semibold transition-colors"
+            >
+              Logout
+            </button>
           </div>
         </div>
 
