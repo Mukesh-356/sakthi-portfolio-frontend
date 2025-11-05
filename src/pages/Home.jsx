@@ -187,9 +187,11 @@ const Home = () => {
               </div>
 
               <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold text-white mb-6 leading-tight">
-                Full 3D
+                SakthiVel's
+
+                
                 <span className="block bg-gradient-to-r from-blue-400 via-purple-500 to-cyan-400 bg-clip-text text-transparent animate-gradient">
-                  Product Experience
+                3D  Product Experience
                 </span>
               </h1>
 
@@ -985,10 +987,10 @@ const EnhancedCTASection3D = () => {
           </Link>
           
           <a 
-            href="/portfolio"
+            href="./Projects.jsx"
             className="group bg-slate-800/50 border border-slate-700 hover:border-purple-500/50 px-8 py-4 rounded-xl text-lg font-semibold text-white transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/10 inline-flex items-center justify-center"
           >
-            View Full Portfolio
+            View Our Projects
           </a>
         </div>
 

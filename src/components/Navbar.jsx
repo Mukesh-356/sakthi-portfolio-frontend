@@ -105,9 +105,13 @@ const Navbar = () => {
             >
               <div className="flex items-center space-x-3">
                 <div className="relative">
-                  <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center text-xl transform group-hover:rotate-12 transition-transform duration-500 shadow-2xl shadow-blue-500/25">
-                    🎨
-                  </div>
+                  <div className="w-12 h-12 rounded-2xl flex items-center justify-center transform group-hover:rotate-12 transition-transform duration-500 shadow-2xl shadow-blue-500/25 overflow-hidden">
+  <img 
+    src="./WhatsApp Image 2025-11-05 at 21.25.32_f3f027fe.jpg" 
+    alt="Artin3D Logo" 
+    className="w-full h-full object-contain"
+  />
+</div>
                   {/* 3D Effect */}
                   <div className="absolute inset-0 bg-gradient-to-br from-blue-400 to-purple-500 rounded-2xl blur-lg opacity-50 group-hover:opacity-70 transition-opacity duration-500 -z-10"></div>
                 </div>

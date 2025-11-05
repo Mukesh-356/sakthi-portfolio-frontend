@@ -254,12 +254,12 @@ const Admin = () => {
             </button>
           </form>
           
-          <div className="mt-6 p-4 bg-slate-800 rounded-lg text-center">
+          {/* <div className="mt-6 p-4 bg-slate-800 rounded-lg text-center">
             <p className="text-sm text-gray-400">
               Default credentials: <br />
               <span className="text-blue-400">sakthi / sakthi@123</span>
             </p>
-          </div>
+          </div> */}
         </div>
       </div>
     );
