@@ -609,7 +609,6 @@
 // export default Projects;
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { Helmet } from 'react-helmet';
 import axios from 'axios';
 
 const API_BASE_URL = 'https://sakthi-portfolio-backend-production.up.railway.app';
