@@ -607,7 +607,6 @@
 // };
 
 // export default Projects;
-
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import axios from 'axios';
 
@@ -620,6 +619,30 @@ const Projects = () => {
   const [showDemo, setShowDemo] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  // SEO Management with useEffect
+  useEffect(() => {
+    // Set page title
+    document.title = "3D Projects Portfolio | ArtIn3D - Professional 3D Modeling Works";
+    
+    // Set meta description
+    let metaDesc = document.querySelector('meta[name="description"]');
+    if (!metaDesc) {
+      metaDesc = document.createElement('meta');
+      metaDesc.name = 'description';
+      document.head.appendChild(metaDesc);
+    }
+    metaDesc.content = "Browse our collection of professional 3D modeling projects including architectural visualizations, character designs, product modeling, and 3D animations.";
+    
+    // Set canonical URL
+    let canonical = document.querySelector('link[rel="canonical"]');
+    if (!canonical) {
+      canonical = document.createElement('link');
+      canonical.rel = 'canonical';
+      document.head.appendChild(canonical);
+    }
+    canonical.href = window.location.href;
+  }, []);
 
   const fetchProjects = useCallback(async () => {
     try {
@@ -664,9 +687,13 @@ const Projects = () => {
   if (loading) {
     return (
       <div className="min-h-screen pt-20 px-6 py-8 bg-gradient-to-br from-slate-900 to-slate-800">
-        <Helmet>
-          <title>Loading Projects | ArtIn3D</title>
-        </Helmet>
+        {/* Hidden SEO Content */}
+        <div className="seo-rich-content" style={{ display: 'none' }}>
+          <h1>3D Projects Portfolio - ArtIn3D</h1>
+          <p>Professional 3D modeling projects including architectural visualizations, character designs, product modeling, and 3D animations.</p>
+          <p>Browse our collection of stunning 3D works created with Blender, Maya, and other professional tools.</p>
+        </div>
+        
         <div className="container mx-auto text-center">
           <div className="animate-pulse text-white text-xl">Loading projects...</div>
         </div>
@@ -676,13 +703,19 @@ const Projects = () => {
 
   return (
     <>
-      <Helmet>
-        <title>3D Projects Portfolio | ArtIn3D - Professional 3D Modeling Works</title>
-        <meta 
-          name="description" 
-          content="Browse our collection of professional 3D modeling projects including architectural visualizations, character designs, product modeling, and 3D animations." 
-        />
-      </Helmet>
+      {/* Hidden SEO Content for Search Engines */}
+      <div className="seo-rich-content" style={{ display: 'none' }}>
+        <h1>3D Projects Portfolio - ArtIn3D Professional 3D Modeling Works</h1>
+        <h2>Architectural Visualizations | Character Designs | Product Modeling | 3D Animations</h2>
+        <p>Explore our comprehensive collection of professional 3D modeling projects. From architectural visualizations and character designs to product modeling and 3D animations, discover stunning digital creations made with industry-leading software.</p>
+        <ul>
+          <li>High-quality 3D architectural visualizations</li>
+          <li>Professional character modeling and design</li>
+          <li>Product modeling and prototyping</li>
+          <li>3D animation and motion graphics</li>
+          <li>Interactive 3D experiences</li>
+        </ul>
+      </div>
 
       <div className="min-h-screen pt-20 px-4 sm:px-6 py-8 bg-gradient-to-br from-slate-900 to-slate-800">
         <div className="container mx-auto">
@@ -1208,7 +1241,7 @@ const ImageBasedViewer = ({ project }) => {
   );
 };
 
-// Project Details Component (Keep your existing implementation)
+// Project Details Component
 const ProjectDetails = ({ project }) => {
   return (
     <div className="space-y-6">
@@ -1272,7 +1305,7 @@ const ProjectDetails = ({ project }) => {
   );
 };
 
-// Project Gallery Component (Keep your existing implementation)
+// Project Gallery Component
 const ProjectGallery = ({ project }) => {
   const images = useMemo(() => 
     project.images?.map(img => 
