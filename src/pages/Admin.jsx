@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const API_BASE_URL = 'https://sakthi-portfolio-backend-production.up.railway.app';
+const API_BASE_URL = 'https://sakthi-portfolio-backend.onrender.com';
 
 const Admin = () => {
   const [user, setUser] = useState(null);

@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { gsap } from 'gsap';
 import axios from 'axios';
 
-const API_BASE_URL = 'https://sakthi-portfolio-backend-production.up.railway.app';
+const API_BASE_URL = 'https://sakthi-portfolio-backend.onrender.com';
 
 const Home = () => {
   const heroRef = useRef(null);
