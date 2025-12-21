@@ -14,12 +14,10 @@ const Home = () => {
   const [projects, setProjects] = useState([]);
   const [loadingProjects, setLoadingProjects] = useState(true);
 
-  // SEO Management with useEffect
+  // SEO Management
   useEffect(() => {
-    // Set page title
     document.title = "Home | ArtIn3D - Professional 3D Modeling Portfolio";
     
-    // Set meta description
     let metaDesc = document.querySelector('meta[name="description"]');
     if (!metaDesc) {
       metaDesc = document.createElement('meta');
@@ -28,7 +26,6 @@ const Home = () => {
     }
     metaDesc.content = "Welcome to ArtIn3D - Professional 3D modeling and animation portfolio. Explore stunning 3D visualizations, architectural designs, and immersive digital experiences.";
     
-    // Set meta keywords
     let metaKeywords = document.querySelector('meta[name="keywords"]');
     if (!metaKeywords) {
       metaKeywords = document.createElement('meta');
@@ -37,7 +34,6 @@ const Home = () => {
     }
     metaKeywords.content = "3D modeling, 3D animation, architectural visualization, 3D portfolio, ArtIn3D, 3D artist, Blender, Maya, 3D design";
     
-    // Set canonical URL
     let canonical = document.querySelector('link[rel="canonical"]');
     if (!canonical) {
       canonical = document.createElement('link');
@@ -47,7 +43,7 @@ const Home = () => {
     canonical.href = "https://artin3d.fun";
   }, []);
 
-  // Fetch projects from backend
+  // Fetch projects
   useEffect(() => {
     fetchProjects();
   }, []);
@@ -63,20 +59,20 @@ const Home = () => {
     }
   };
 
-  // Convert backend projects to 360 viewer format
   const get360ViewerProducts = () => {
     if (!projects || projects.length === 0) {
       return [
         {
           id: 1,
-          name: "Modern Sofa",
-          category: "Furniture",
-          icon: "🛋️",
-          color: "from-blue-500 to-cyan-500",
-          description: "Luxury modern sofa with premium fabric and ergonomic design",
-          price: "$1,299",
-          features: ["Premium Fabric", "Ergonomic Design", "Easy Assembly"],
-          categoryId: 0
+          name: "Claas Agricultural Equipment",
+          category: "Agricultural Equipment",
+          icon: "🚜",
+          color: "from-yellow-600 to-orange-600",
+          description: "Detailed 3D model of Claas agricultural equipment",
+          price: "Contact for Price",
+          features: ["High Poly Model", "PBR Textures", "Optimized for Rendering"],
+          categoryId: 8,
+          demoEmbed: '<div class="sketchfab-embed-wrapper"> <iframe title="Claas" frameborder="0" allowfullscreen mozallowfullscreen="true" webkitallowfullscreen="true" allow="autoplay; fullscreen; xr-spatial-tracking" xr-spatial-tracking execution-while-out-of-viewport execution-while-not-rendered web-share width="640" height="480" src="https://sketchfab.com/models/b8e19c5ab2c6437b9eba38b00c82df65/embed"> </iframe> </div>'
         }
       ];
     }
@@ -91,7 +87,8 @@ const Home = () => {
       price: project.price || "Contact for Price",
       features: project.technologies || ["3D Model", "High Quality"],
       categoryId: getCategoryId(project.category),
-      projectData: project // Include full project data
+      demoEmbed: project.demoEmbed || '<div class="sketchfab-embed-wrapper"> <iframe title="3D Model" frameborder="0" allowfullscreen mozallowfullscreen="true" webkitallowfullscreen="true" allow="autoplay; fullscreen; xr-spatial-tracking" xr-spatial-tracking execution-while-out-of-viewport execution-while-not-rendered web-share width="640" height="480" src="https://sketchfab.com/models/b8e19c5ab2c6437b9eba38b00c82df65/embed"> </iframe> </div>',
+      projectData: project
     }));
   };
 
@@ -104,7 +101,8 @@ const Home = () => {
       'Character Modeling': '👤',
       'Motion Graphics': '✨',
       'VFX': '💥',
-      'Game Assets': '🎮'
+      'Game Assets': '🎮',
+      'Agricultural Equipment': '🚜'
     };
     return icons[category] || '🎯';
   };
@@ -118,7 +116,8 @@ const Home = () => {
       'Character Modeling': 'from-yellow-500 to-amber-500',
       'Motion Graphics': 'from-indigo-500 to-purple-500',
       'VFX': 'from-red-500 to-pink-500',
-      'Game Assets': 'from-teal-500 to-blue-500'
+      'Game Assets': 'from-teal-500 to-blue-500',
+      'Agricultural Equipment': 'from-yellow-600 to-orange-600'
     };
     return colors[category] || 'from-gray-500 to-slate-500';
   };
@@ -132,7 +131,8 @@ const Home = () => {
       'Character Modeling': 4,
       'Motion Graphics': 5,
       'VFX': 6,
-      'Game Assets': 7
+      'Game Assets': 7,
+      'Agricultural Equipment': 8
     };
     return categories[category] || 0;
   };
@@ -171,7 +171,6 @@ const Home = () => {
     return () => clearInterval(interval);
   }, [projects]);
 
-  // Scroll to 360 viewer when category is selected
   useEffect(() => {
     if (selectedCategory !== null) {
       const viewerSection = document.getElementById('360-viewer-section');
@@ -189,7 +188,7 @@ const Home = () => {
 
   return (
     <div className="pt-16 overflow-hidden">
-      {/* Hidden SEO Content for Search Engines */}
+      {/* Hidden SEO Content */}
       <div className="seo-rich-content" style={{ display: 'none' }}>
         <h1>ArtIn3D - Professional 3D Modeling Studio</h1>
         <h2>3D Animation Services | Architectural Visualization | Character Modeling</h2>
@@ -204,6 +203,7 @@ const Home = () => {
         </ul>
       </div>
 
+      {/* Hero Section */}
       <section ref={heroRef} className="min-h-screen flex items-center justify-center px-6 lg:px-20 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 relative overflow-hidden">
         
         {/* Background Grid */}
@@ -229,19 +229,19 @@ const Home = () => {
             <div className="flex-1 hero-content text-center lg:text-left">
               <div className="floating-element inline-flex items-center px-4 py-2 rounded-full bg-blue-500/20 border border-blue-500/30 text-blue-300 text-sm mb-6 backdrop-blur-sm">
                 <span className="w-2 h-2 bg-blue-500 rounded-full mr-2 animate-pulse"></span>
-                Advanced 3D Product Visualization
+                Professional 3D Modeling & Visualization
               </div>
 
               <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold text-white mb-6 leading-tight">
                 SakthiVel's
                 <span className="block bg-gradient-to-r from-blue-400 via-purple-500 to-cyan-400 bg-clip-text text-transparent animate-gradient">
-                  3D Product Experience
+                  Digital Art Gallery
                 </span>
               </h1>
 
               <p className="text-xl text-gray-300 mb-8 max-w-2xl leading-relaxed">
-                Experience products in complete 3D freedom. Rotate in any direction, 
-                zoom into details, and explore every angle with our advanced 360° viewer.
+                Immerse yourself in stunning 3D creations. From architectural visualizations 
+                to character designs, explore every detail with our interactive 360° viewer.
               </p>
 
               <div className="floating-element mb-8 p-6 bg-slate-800/50 rounded-2xl border border-slate-700 backdrop-blur-sm">
@@ -253,16 +253,16 @@ const Home = () => {
                 </div>
                 <div className="grid grid-cols-3 gap-4 text-center">
                   <div>
-                    <div className="text-2xl font-bold text-white">High</div>
+                    <div className="text-2xl font-bold text-white">4K</div>
                     <div className="text-gray-400 text-sm">Quality</div>
                   </div>
                   <div>
                     <div className="text-2xl font-bold text-white">3D</div>
-                    <div className="text-gray-400 text-sm">Ready</div>
+                    <div className="text-gray-400 text-sm">Interactive</div>
                   </div>
                   <div>
                     <div className="text-2xl font-bold text-white">360°</div>
-                    <div className="text-gray-400 text-sm">View</div>
+                    <div className="text-gray-400 text-sm">Rotation</div>
                   </div>
                 </div>
               </div>
@@ -273,7 +273,7 @@ const Home = () => {
                   className="group bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 px-8 py-4 rounded-xl text-lg font-semibold text-white transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-blue-500/25 inline-flex items-center justify-center"
                 >
                   <span className="relative z-10 flex items-center">
-                    Try 360° Viewer
+                    Explore 3D Models
                     <svg className="w-5 h-5 ml-2 group-hover:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
                     </svg>
@@ -327,8 +327,9 @@ const LoadingScreen = () => {
   return (
     <div className="fixed inset-0 bg-slate-900 flex items-center justify-center z-50">
       <div className="text-center">
-        <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-        <div className="text-white text-lg">Loading 3D Experience...</div>
+        <div className="w-20 h-20 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+        <div className="text-white text-xl font-medium">Loading 3D Experience...</div>
+        <div className="text-gray-400 text-sm mt-2">Preparing interactive models</div>
       </div>
     </div>
   );
@@ -339,7 +340,7 @@ const FloatingShapes = ({ mousePosition }) => {
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
       <div 
-        className="absolute w-64 h-64 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-full blur-3xl"
+        className="absolute w-72 h-72 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-full blur-3xl"
         style={{
           top: '20%',
           left: '10%',
@@ -352,6 +353,14 @@ const FloatingShapes = ({ mousePosition }) => {
           top: '60%',
           right: '10%',
           transform: `translate(${-mousePosition.x * 0.3}px, ${-mousePosition.y * 0.3}px)`
+        }}
+      ></div>
+      <div 
+        className="absolute w-64 h-64 bg-gradient-to-r from-green-500/10 to-emerald-500/10 rounded-full blur-3xl"
+        style={{
+          bottom: '20%',
+          left: '50%',
+          transform: `translate(${mousePosition.x * 0.2}px, ${-mousePosition.y * 0.2}px)`
         }}
       ></div>
     </div>
@@ -412,7 +421,7 @@ const Advanced3DViewer = ({ activeModel, products, mousePosition }) => {
   return (
     <div className="relative w-96 h-96">
       <div 
-        className="absolute inset-0 bg-gradient-to-br from-slate-800 to-slate-900 rounded-3xl border border-slate-700 backdrop-blur-sm overflow-hidden"
+        className="absolute inset-0 bg-gradient-to-br from-slate-800 to-slate-900 rounded-3xl border-2 border-slate-700 backdrop-blur-sm overflow-hidden"
         style={{
           transform: `perspective(1500px) rotateX(${5 + mousePosition.y * 0.2}deg) rotateY(${mousePosition.x * 0.2}deg)`,
           boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)'
@@ -435,50 +444,54 @@ const Advanced3DViewer = ({ activeModel, products, mousePosition }) => {
             }}
           >
             {/* 3D Model Placeholder */}
-            <div className="w-48 h-48 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-2xl border-2 border-blue-400/30 backdrop-blur-sm flex items-center justify-center">
-              <div className="text-6xl">{currentProduct?.icon}</div>
+            <div className="w-52 h-52 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-3xl border-2 border-blue-400/30 backdrop-blur-sm flex items-center justify-center shadow-2xl">
+              <div className="text-7xl animate-pulse">{currentProduct?.icon}</div>
             </div>
             
             {/* 3D Axis Indicators */}
-            <div className="absolute -top-4 -left-4 w-8 h-8 border-2 border-red-500/50 rounded-full"></div>
-            <div className="absolute -top-4 -right-4 w-8 h-8 border-2 border-green-500/50 rounded-full"></div>
-            <div className="absolute -bottom-4 -left-4 w-8 h-8 border-2 border-blue-500/50 rounded-full"></div>
+            <div className="absolute -top-6 -left-6 w-10 h-10 border-2 border-red-500/50 rounded-full animate-ping"></div>
+            <div className="absolute -top-6 -right-6 w-10 h-10 border-2 border-green-500/50 rounded-full animate-ping" style={{animationDelay: '0.2s'}}></div>
+            <div className="absolute -bottom-6 -left-6 w-10 h-10 border-2 border-blue-500/50 rounded-full animate-ping" style={{animationDelay: '0.4s'}}></div>
           </div>
         </div>
 
         {/* Controls Panel */}
-        <div className="absolute bottom-6 left-6 right-6 bg-slate-900/80 backdrop-blur-sm rounded-xl p-4 border border-slate-700">
+        <div className="absolute bottom-6 left-6 right-6 bg-slate-900/90 backdrop-blur-sm rounded-xl p-4 border border-slate-700 shadow-xl">
           <div className="flex items-center justify-between mb-3">
             <div>
               <div className="text-white font-bold text-lg">{currentProduct?.name}</div>
-              <div className="text-gray-400 text-sm">{currentProduct?.category} • {currentProduct?.price}</div>
+              <div className="text-gray-400 text-sm">{currentProduct?.category}</div>
             </div>
-            <div className="text-3xl">{currentProduct?.icon}</div>
+            <div className="text-3xl animate-bounce">{currentProduct?.icon}</div>
           </div>
           
           <div className="flex items-center justify-between">
             <div className="flex gap-2">
               <button 
                 onClick={() => setScale(1)}
-                className="w-8 h-8 bg-slate-700 rounded-lg flex items-center justify-center text-white hover:bg-slate-600 transition-colors"
+                className="w-10 h-10 bg-slate-700 hover:bg-slate-600 rounded-xl flex items-center justify-center text-white transition-all hover:scale-110"
+                title="Reset View"
               >
                 ⟳
               </button>
               <button 
                 onClick={() => setScale(Math.min(scale + 0.1, 2))}
-                className="w-8 h-8 bg-slate-700 rounded-lg flex items-center justify-center text-white hover:bg-slate-600 transition-colors"
+                className="w-10 h-10 bg-slate-700 hover:bg-slate-600 rounded-xl flex items-center justify-center text-white transition-all hover:scale-110"
+                title="Zoom In"
               >
                 +
               </button>
               <button 
                 onClick={() => setScale(Math.max(scale - 0.1, 0.5))}
-                className="w-8 h-8 bg-slate-700 rounded-lg flex items-center justify-center text-white hover:bg-slate-600 transition-colors"
+                className="w-10 h-10 bg-slate-700 hover:bg-slate-600 rounded-xl flex items-center justify-center text-white transition-all hover:scale-110"
+                title="Zoom Out"
               >
                 -
               </button>
             </div>
             
-            <div className="text-xs text-gray-400">
+            <div className="text-xs text-gray-400 flex items-center gap-2">
+              <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
               Drag to rotate • Scroll to zoom
             </div>
           </div>
@@ -496,32 +509,36 @@ const ProductCategoriesSection = ({ onCategorySelect }) => {
       name: "3D Modeling",
       icon: "🎨",
       description: "High-quality 3D models and assets",
-      count: "12 Projects",
-      color: "from-blue-500 to-cyan-500"
+      count: "12 3D Models",
+      color: "from-blue-500 to-cyan-500",
+      gradient: "bg-gradient-to-br from-blue-500 to-cyan-500"
     },
     {
       id: 1,
       name: "3D Animation",
       icon: "🎬",
       description: "Dynamic animations and motion graphics",
-      count: "8 Projects",
-      color: "from-purple-500 to-pink-500"
+      count: "8 3D Models",
+      color: "from-purple-500 to-pink-500",
+      gradient: "bg-gradient-to-br from-purple-500 to-pink-500"
     },
     {
       id: 2,
       name: "Architectural Visualization",
       icon: "🏛️",
       description: "Realistic architectural renders",
-      count: "15 Projects",
-      color: "from-green-500 to-emerald-500"
+      count: "15 3D Models",
+      color: "from-green-500 to-emerald-500",
+      gradient: "bg-gradient-to-br from-green-500 to-emerald-500"
     },
     {
       id: 3,
       name: "Product Design",
       icon: "📱",
       description: "Innovative product designs",
-      count: "10 Projects",
-      color: "from-orange-500 to-red-500"
+      count: "10 3D Models",
+      color: "from-orange-500 to-red-500",
+      gradient: "bg-gradient-to-br from-orange-500 to-red-500"
     }
   ];
 
@@ -533,28 +550,31 @@ const ProductCategoriesSection = ({ onCategorySelect }) => {
             Explore by <span className="text-cyan-400">Category</span>
           </h2>
           <p className="text-xl text-gray-400 max-w-3xl mx-auto">
-            Discover our diverse range of 3D projects across different categories. 
+            Discover our diverse range of 3D Models across different categories. 
             Each category showcases unique expertise and creative solutions.
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {categories.map((category, index) => (
+          {categories.map((category) => (
             <button
               key={category.id}
               onClick={() => onCategorySelect(category.id)}
-              className="group p-6 bg-slate-800/50 rounded-2xl border border-slate-700 backdrop-blur-sm text-left transition-all duration-300 hover:border-cyan-500/50 hover:transform hover:scale-105 hover:shadow-2xl hover:shadow-cyan-500/10"
+              className="group relative p-6 bg-slate-800/50 rounded-2xl border border-slate-700 backdrop-blur-sm text-left transition-all duration-300 hover:border-cyan-500/50 hover:transform hover:scale-105 hover:shadow-2xl hover:shadow-cyan-500/10 overflow-hidden"
             >
-              <div className={`w-16 h-16 bg-gradient-to-br ${category.color} rounded-2xl flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform duration-300`}>
+              {/* Animated background gradient */}
+              <div className={`absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-500 ${category.gradient}`}></div>
+              
+              <div className={`w-16 h-16 bg-gradient-to-br ${category.color} rounded-2xl flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform duration-300 relative z-10`}>
                 {category.icon}
               </div>
               
-              <h3 className="text-xl font-bold text-white mb-2">{category.name}</h3>
-              <p className="text-gray-400 text-sm mb-4">{category.description}</p>
+              <h3 className="text-xl font-bold text-white mb-2 relative z-10">{category.name}</h3>
+              <p className="text-gray-400 text-sm mb-4 relative z-10">{category.description}</p>
               
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between relative z-10">
                 <span className="text-cyan-400 text-sm font-semibold">{category.count}</span>
-                <div className="w-8 h-8 bg-slate-700 rounded-full flex items-center justify-center group-hover:bg-cyan-500 transition-colors">
+                <div className="w-8 h-8 bg-slate-700 rounded-full flex items-center justify-center group-hover:bg-cyan-500 transition-colors duration-300 group-hover:rotate-45">
                   <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                   </svg>
@@ -568,28 +588,28 @@ const ProductCategoriesSection = ({ onCategorySelect }) => {
   );
 };
 
-// Interactive 360 Viewer Component
+// Interactive 360 Viewer Component with Sketchfab
 const Interactive360Viewer = ({ id, selectedCategory, projects, loading }) => {
   const [selectedProduct, setSelectedProduct] = useState(0);
+  const [viewMode, setViewMode] = useState("sketchfab");
   const [rotation, setRotation] = useState({ x: 0, y: 0, z: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const [startPos, setStartPos] = useState({ x: 0, y: 0 });
-  const [autoRotate, setAutoRotate] = useState(true);
 
-  // Convert projects to viewer format
   const getViewerProducts = () => {
     if (!projects || projects.length === 0) {
       return [
         {
           id: 1,
-          name: "Modern Sofa",
-          category: "Furniture",
-          icon: "🛋️",
-          color: "from-blue-500 to-cyan-500",
-          description: "Luxury modern sofa with premium fabric and ergonomic design",
-          price: "$1,299",
-          features: ["Premium Fabric", "Ergonomic Design", "Easy Assembly"],
-          categoryId: 0
+          name: "Claas Agricultural Equipment",
+          category: "Agricultural Equipment",
+          icon: "🚜",
+          color: "from-yellow-600 to-orange-600",
+          description: "Detailed 3D model of Claas agricultural equipment with realistic textures and materials",
+          price: "Contact for Price",
+          features: ["High Poly Model", "PBR Textures", "Optimized for Rendering", "360° View"],
+          categoryId: 8,
+          demoEmbed: '<div class="sketchfab-embed-wrapper"> <iframe title="Claas" frameborder="0" allowfullscreen mozallowfullscreen="true" webkitallowfullscreen="true" allow="autoplay; fullscreen; xr-spatial-tracking" xr-spatial-tracking execution-while-out-of-viewport execution-while-not-rendered web-share width="640" height="480" src="https://sketchfab.com/models/b8e19c5ab2c6437b9eba38b00c82df65/embed"> </iframe> </div>'
         }
       ];
     }
@@ -602,9 +622,10 @@ const Interactive360Viewer = ({ id, selectedCategory, projects, loading }) => {
       color: getCategoryColor(project.category),
       description: project.description,
       price: project.price || "Contact for Price",
-      features: project.technologies || ["3D Model", "High Quality"],
+      features: project.technologies || ["3D Model", "High Quality", "360° View"],
       categoryId: getCategoryId(project.category),
-      projectData: project
+      projectData: project,
+      demoEmbed: project.demoEmbed || getDefaultEmbed(project.category, index)
     }));
   };
 
@@ -617,7 +638,8 @@ const Interactive360Viewer = ({ id, selectedCategory, projects, loading }) => {
       'Character Modeling': '👤',
       'Motion Graphics': '✨',
       'VFX': '💥',
-      'Game Assets': '🎮'
+      'Game Assets': '🎮',
+      'Agricultural Equipment': '🚜'
     };
     return icons[category] || '🎯';
   };
@@ -631,7 +653,8 @@ const Interactive360Viewer = ({ id, selectedCategory, projects, loading }) => {
       'Character Modeling': 'from-yellow-500 to-amber-500',
       'Motion Graphics': 'from-indigo-500 to-purple-500',
       'VFX': 'from-red-500 to-pink-500',
-      'Game Assets': 'from-teal-500 to-blue-500'
+      'Game Assets': 'from-teal-500 to-blue-500',
+      'Agricultural Equipment': 'from-yellow-600 to-orange-600'
     };
     return colors[category] || 'from-gray-500 to-slate-500';
   };
@@ -645,24 +668,35 @@ const Interactive360Viewer = ({ id, selectedCategory, projects, loading }) => {
       'Character Modeling': 4,
       'Motion Graphics': 5,
       'VFX': 6,
-      'Game Assets': 7
+      'Game Assets': 7,
+      'Agricultural Equipment': 8
     };
     return categories[category] || 0;
   };
 
+  const getDefaultEmbed = (category, index) => {
+    return '<div class="sketchfab-embed-wrapper"> <iframe title="3D Model" frameborder="0" allowfullscreen mozallowfullscreen="true" webkitallowfullscreen="true" allow="autoplay; fullscreen; xr-spatial-tracking" xr-spatial-tracking execution-while-out-of-viewport execution-while-not-rendered web-share width="640" height="480" src="https://sketchfab.com/models/b8e19c5ab2c6437b9eba38b00c82df65/embed"> </iframe> </div>';
+  };
+
   const viewerProducts = getViewerProducts();
-  
-  // Filter products based on selected category
   const filteredProducts = selectedCategory !== null 
     ? viewerProducts.filter(product => product.categoryId === selectedCategory)
     : viewerProducts;
 
   const currentProduct = filteredProducts[selectedProduct] || viewerProducts[0];
 
+  // Extract iframe src from embed code
+  const extractEmbedSrc = (embedCode) => {
+    if (!embedCode) return "https://sketchfab.com/models/b8e19c5ab2c6437b9eba38b00c82df65/embed";
+    const match = embedCode.match(/src="([^"]+)"/);
+    return match ? match[1] : embedCode;
+  };
+
+  const currentEmbedSrc = extractEmbedSrc(currentProduct?.demoEmbed);
+
   const handleMouseDown = (e) => {
     setIsDragging(true);
     setStartPos({ x: e.clientX, y: e.clientY });
-    setAutoRotate(false);
   };
 
   const handleMouseMove = (e) => {
@@ -682,26 +716,18 @@ const Interactive360Viewer = ({ id, selectedCategory, projects, loading }) => {
 
   const handleMouseUp = () => {
     setIsDragging(false);
-    setTimeout(() => setAutoRotate(true), 3000);
   };
 
-  useEffect(() => {
-    if (autoRotate && !isDragging) {
-      const interval = setInterval(() => {
-        setRotation(prev => ({
-          ...prev,
-          y: prev.y + 0.5
-        }));
-      }, 50);
-      return () => clearInterval(interval);
-    }
-  }, [autoRotate, isDragging]);
+  const handleProductSelect = (index) => {
+    setSelectedProduct(index);
+    setRotation({ x: 0, y: 0, z: 0 });
+  };
 
   if (loading) {
     return (
       <section id={id} className="py-20 px-6 bg-slate-800/50">
         <div className="container mx-auto text-center">
-          <div className="animate-pulse text-white">Loading projects...</div>
+          <div className="animate-pulse text-white text-xl">Loading 3D Models...</div>
         </div>
       </section>
     );
@@ -718,8 +744,8 @@ const Interactive360Viewer = ({ id, selectedCategory, projects, loading }) => {
             {projects.length === 0 
               ? "No projects yet. Add projects in the admin panel to see them here!"
               : selectedCategory !== null 
-                ? `Exploring ${filteredProducts.length} projects in this category. Drag to rotate in any direction!`
-                : `Viewing all ${filteredProducts.length} projects. Drag to rotate in 3D!`
+                ? `Exploring ${filteredProducts.length} projects in this category. Click to view in 3D!`
+                : `Viewing all ${filteredProducts.length} projects. Click on a project to view in 3D!`
             }
           </p>
         </div>
@@ -741,25 +767,48 @@ const Interactive360Viewer = ({ id, selectedCategory, projects, loading }) => {
           </div>
         ) : (
           <div className="flex flex-col lg:flex-row gap-8 items-stretch">
-            {/* Product Selection */}
+            {/* Project Selection Sidebar */}
             <div className="lg:w-1/3">
               <div className="bg-slate-800/50 rounded-2xl p-6 border border-slate-700 backdrop-blur-sm h-full">
-                <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-                  <span>📦</span>
-                  Select Project
-                  <span className="text-sm text-green-400 bg-green-500/20 px-2 py-1 rounded">
-                    {filteredProducts.length} Projects
-                  </span>
-                </h3>
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                    <span>📦</span>
+                    Select Project
+                    <span className="text-sm text-green-400 bg-green-500/20 px-2 py-1 rounded">
+                      {filteredProducts.length} Projects
+                    </span>
+                  </h3>
+                  
+                  {/* View Mode Toggle */}
+                  <div className="flex bg-slate-700/50 rounded-lg p-1">
+                    <button
+                      onClick={() => setViewMode("3d")}
+                      className={`px-3 py-1 rounded-md text-sm font-medium transition-all ${
+                        viewMode === "3d"
+                          ? 'bg-blue-600 text-white shadow-sm'
+                          : 'text-gray-400 hover:text-white'
+                      }`}
+                    >
+                      3D View
+                    </button>
+                    <button
+                      onClick={() => setViewMode("sketchfab")}
+                      className={`px-3 py-1 rounded-md text-sm font-medium transition-all ${
+                        viewMode === "sketchfab"
+                          ? 'bg-purple-600 text-white shadow-sm'
+                          : 'text-gray-400 hover:text-white'
+                      }`}
+                    >
+                      Sketchfab
+                    </button>
+                  </div>
+                </div>
                 
-                <div className="space-y-3 max-h-96 overflow-y-auto">
+                <div className="space-y-3 max-h-96 overflow-y-auto pr-2">
                   {filteredProducts.map((product, index) => (
                     <button
                       key={product.id}
-                      onClick={() => {
-                        setSelectedProduct(index);
-                        setRotation({ x: 0, y: 0, z: 0 });
-                      }}
+                      onClick={() => handleProductSelect(index)}
                       className={`w-full p-4 rounded-xl text-left transition-all duration-300 group ${
                         selectedProduct === index
                           ? 'bg-blue-600/20 border border-blue-500/50 transform scale-105'
@@ -786,9 +835,11 @@ const Interactive360Viewer = ({ id, selectedCategory, projects, loading }) => {
                 <div className="mt-6 p-4 bg-slate-700/30 rounded-xl border border-slate-600">
                   <h4 className="text-white font-bold mb-2">{currentProduct.name}</h4>
                   <p className="text-gray-400 text-sm mb-3">{currentProduct.description}</p>
-                  <div className="text-green-400 font-bold text-lg mb-3">{currentProduct.price}</div>
-                  <div className="flex flex-wrap gap-2">
-                    {currentProduct.features.map((feature, idx) => (
+                  {currentProduct.price && (
+                    <div className="text-green-400 font-bold text-lg mb-3">{currentProduct.price}</div>
+                  )}
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {currentProduct.features?.map((feature, idx) => (
                       <span key={idx} className="px-2 py-1 bg-slate-600/50 text-gray-300 rounded text-xs">
                         {feature}
                       </span>
@@ -811,77 +862,156 @@ const Interactive360Viewer = ({ id, selectedCategory, projects, loading }) => {
               </div>
             </div>
 
-            {/* 360 Viewer */}
+            {/* Sketchfab Viewer */}
             <div className="lg:w-2/3">
-              <div className="bg-slate-800/50 rounded-2xl p-8 border border-slate-700 backdrop-blur-sm h-full">
+              <div className="bg-slate-800/50 rounded-2xl p-6 border border-slate-700 backdrop-blur-sm h-full">
                 <div className="flex items-center justify-between mb-6">
                   <h3 className="text-2xl font-bold text-white flex items-center gap-3">
                     <span className={`w-12 h-12 bg-gradient-to-br ${currentProduct.color} rounded-xl flex items-center justify-center text-xl`}>
                       {currentProduct.icon}
                     </span>
                     {currentProduct.name}
+                    <span className="text-sm text-purple-400 bg-purple-500/20 px-3 py-1 rounded-full">
+                      {viewMode === "sketchfab" ? "LIVE 3D VIEWER" : "3D PREVIEW"}
+                    </span>
                   </h3>
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => setAutoRotate(!autoRotate)}
-                      className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
-                        autoRotate
-                          ? 'bg-green-500/20 text-green-400 border border-green-500/30'
-                          : 'bg-slate-700 text-gray-400 border border-slate-600'
-                      }`}
-                    >
-                      {autoRotate ? 'Auto: ON' : 'Auto: OFF'}
-                    </button>
-                  </div>
                 </div>
 
-                {/* 3D Viewer Container */}
-                <div 
-                  className="relative h-96 bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl border-2 border-slate-600 overflow-hidden"
-                  onMouseDown={handleMouseDown}
-                  onMouseMove={handleMouseMove}
-                  onMouseUp={handleMouseUp}
-                  onMouseLeave={handleMouseUp}
-                >
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div 
-                      className="relative"
-                      style={{
-                        transform: `rotateX(${rotation.x}deg) rotateY(${rotation.y}deg) rotateZ(${rotation.z}deg)`,
-                        transition: isDragging ? 'none' : 'transform 0.1s ease'
-                      }}
-                    >
-                      {/* 3D Model Placeholder */}
-                      <div className={`w-64 h-64 bg-gradient-to-br ${currentProduct.color} rounded-3xl border-2 border-white/20 backdrop-blur-sm flex items-center justify-center shadow-2xl`}>
-                        <div className="text-8xl">{currentProduct.icon}</div>
+                {/* Viewer Container */}
+                <div className="relative h-[500px] bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl border-2 border-slate-600 overflow-hidden">
+                  {viewMode === "sketchfab" ? (
+                    <div className="w-full h-full">
+                      {/* Dynamic Sketchfab Embed */}
+                      <div className="sketchfab-embed-wrapper w-full h-full">
+                        <iframe
+                          title={currentProduct.name}
+                          frameBorder="0"
+                          allowFullScreen
+                          mozAllowFullScreen="true"
+                          webkitAllowFullScreen="true"
+                          allow="autoplay; fullscreen; xr-spatial-tracking"
+                          xr-spatial-tracking
+                          execution-while-out-of-viewport
+                          execution-while-not-rendered
+                          web-share
+                          width="100%"
+                          height="100%"
+                          src={currentEmbedSrc}
+                          className="rounded-xl"
+                        ></iframe>
                       </div>
-                      
-                      {/* 3D Environment */}
-                      <div className="absolute -inset-4 border-2 border-blue-500/20 rounded-3xl"></div>
-                      <div className="absolute -inset-8 border-2 border-purple-500/10 rounded-3xl"></div>
                     </div>
-                  </div>
+                  ) : (
+                    <div 
+                      className="absolute inset-0 flex items-center justify-center cursor-grab active:cursor-grabbing"
+                      onMouseDown={handleMouseDown}
+                      onMouseMove={handleMouseMove}
+                      onMouseUp={handleMouseUp}
+                      onMouseLeave={handleMouseUp}
+                    >
+                      <div 
+                        className="relative"
+                        style={{
+                          transform: `rotateX(${rotation.x}deg) rotateY(${rotation.y}deg) rotateZ(${rotation.z}deg)`,
+                          transition: isDragging ? 'none' : 'transform 0.1s ease'
+                        }}
+                      >
+                        <div className={`w-64 h-64 bg-gradient-to-br ${currentProduct.color} rounded-3xl border-2 border-white/20 backdrop-blur-sm flex items-center justify-center shadow-2xl`}>
+                          <div className="text-8xl">{currentProduct.icon}</div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
                   {/* Controls Overlay */}
                   <div className="absolute bottom-4 left-4 right-4">
-                    <div className="bg-slate-900/80 backdrop-blur-sm rounded-xl p-4 border border-slate-700">
+                    <div className="bg-slate-900/90 backdrop-blur-sm rounded-xl p-4 border border-slate-700">
                       <div className="flex items-center justify-between">
                         <div className="text-white text-sm">
-                          Drag to rotate • {isDragging ? 'Rotating...' : autoRotate ? 'Auto-rotating' : 'Paused'}
-                        </div>
-                        <div className="flex gap-2">
-                          <div className="text-xs text-gray-400">
-                            X: {Math.round(rotation.x)}° Y: {Math.round(rotation.y)}° Z: {Math.round(rotation.z)}°
-                          </div>
+                          {viewMode === "sketchfab" ? (
+                            <div className="flex items-center gap-2">
+                              <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                              LIVE - Drag to rotate • Scroll to zoom • Right-click for menu
+                            </div>
+                          ) : (
+                            <div className="flex items-center gap-2">
+                              <span className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></span>
+                              DRAG to rotate • SCROLL to zoom
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>
+                  </div>
+                </div>
+
+                {/* Viewer Instructions */}
+                <div className="mt-4 grid grid-cols-3 gap-4 text-center">
+                  <div className="p-3 bg-slate-700/30 rounded-lg border border-slate-600 hover:border-blue-500/50 transition-colors">
+                    <div className="text-blue-400 font-bold text-sm">MOUSE DRAG</div>
+                    <div className="text-gray-400 text-xs">Rotate 360°</div>
+                  </div>
+                  <div className="p-3 bg-slate-700/30 rounded-lg border border-slate-600 hover:border-green-500/50 transition-colors">
+                    <div className="text-green-400 font-bold text-sm">MOUSE WHEEL</div>
+                    <div className="text-gray-400 text-xs">Zoom In/Out</div>
+                  </div>
+                  <div className="p-3 bg-slate-700/30 rounded-lg border border-slate-600 hover:border-purple-500/50 transition-colors">
+                    <div className="text-purple-400 font-bold text-sm">FULLSCREEN</div>
+                    <div className="text-gray-400 text-xs">Bottom-right button</div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
         )}
+
+        {/* Sketchfab Credit */}
+        <div className="mt-8 text-center">
+          <div className="inline-flex items-center gap-2 bg-slate-800/50 px-4 py-2 rounded-lg border border-slate-700 hover:border-purple-500/50 transition-colors">
+            <span className="text-gray-400 text-sm">3D models powered by</span>
+            <a 
+              href="https://sketchfab.com" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-blue-400 hover:text-blue-300 transition-colors font-bold"
+            >
+              Sketchfab
+            </a>
+            <span className="text-gray-400">• Created by</span>
+            <a 
+              href="https://sketchfab.com/s.sakthivelappa" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-purple-400 hover:text-purple-300 transition-colors font-bold"
+            >
+              SakthiVel
+            </a>
+          </div>
+        </div>
+
+        
+
+<div className="mt-16 flex justify-center">
+  <div className="bg-gradient-to-r from-slate-800 to-slate-900 rounded-2xl p-6 border border-slate-700 max-w-md text-center">
+    <div className="text-4xl mb-4">🎨</div>
+    <h3 className="text-xl font-bold text-white mb-2">Explore Full 3D Models with details </h3>
+    <p className="text-gray-400 mb-4">
+      View all 3D models with detailed information, gallery, and technical specs
+    </p>
+    <Link 
+      to="/projects" 
+      className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 px-6 py-3 rounded-lg text-white font-semibold transition-all hover:scale-105"
+    >
+      Go to Projects Page
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+      </svg>
+    </Link>
+  </div>
+</div>
+
+
+
       </div>
     </section>
   );
@@ -894,19 +1024,22 @@ const EnhancedServicesSection = () => {
       icon: "🎨",
       title: "3D Modeling",
       description: "High-quality 3D models with attention to detail and realism",
-      features: ["Character Modeling", "Product Design", "Architectural Models"]
+      features: ["Character Modeling", "Product Design", "Architectural Models", "Game Assets"],
+      color: "from-blue-500 to-cyan-500"
     },
     {
       icon: "🎬",
       title: "3D Animation",
       description: "Bringing models to life with smooth and dynamic animations",
-      features: ["Character Animation", "Product Demos", "Motion Graphics"]
+      features: ["Character Animation", "Product Demos", "Motion Graphics", "VFX"],
+      color: "from-purple-500 to-pink-500"
     },
     {
       icon: "🏛️",
       title: "Architectural Visualization",
       description: "Photorealistic architectural renders and walkthroughs",
-      features: ["Interior Design", "Exterior Renders", "Virtual Tours"]
+      features: ["Interior Design", "Exterior Renders", "Virtual Tours", "Real-time 3D"],
+      color: "from-green-500 to-emerald-500"
     }
   ];
 
@@ -926,19 +1059,22 @@ const EnhancedServicesSection = () => {
           {services.map((service, index) => (
             <div 
               key={index}
-              className="group p-8 bg-slate-800/50 rounded-2xl border border-slate-700 backdrop-blur-sm transition-all duration-300 hover:border-green-500/50 hover:transform hover:scale-105 hover:shadow-2xl hover:shadow-green-500/10"
+              className="group relative p-8 bg-slate-800/50 rounded-2xl border border-slate-700 backdrop-blur-sm transition-all duration-300 hover:border-green-500/50 hover:transform hover:scale-105 hover:shadow-2xl hover:shadow-green-500/10 overflow-hidden"
             >
-              <div className="w-20 h-20 bg-gradient-to-br from-green-500 to-emerald-500 rounded-2xl flex items-center justify-center text-3xl mb-6 group-hover:scale-110 transition-transform duration-300">
+              {/* Background gradient */}
+              <div className={`absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-500 bg-gradient-to-br ${service.color}`}></div>
+              
+              <div className={`w-20 h-20 bg-gradient-to-br ${service.color} rounded-2xl flex items-center justify-center text-3xl mb-6 group-hover:scale-110 transition-transform duration-300 relative z-10`}>
                 {service.icon}
               </div>
               
-              <h3 className="text-2xl font-bold text-white mb-4">{service.title}</h3>
-              <p className="text-gray-400 mb-6">{service.description}</p>
+              <h3 className="text-2xl font-bold text-white mb-4 relative z-10">{service.title}</h3>
+              <p className="text-gray-400 mb-6 relative z-10">{service.description}</p>
               
-              <ul className="space-y-2">
+              <ul className="space-y-2 relative z-10">
                 {service.features.map((feature, idx) => (
-                  <li key={idx} className="flex items-center text-gray-300">
-                    <svg className="w-4 h-4 text-green-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <li key={idx} className="flex items-center text-gray-300 group/item hover:text-white transition-colors">
+                    <svg className="w-4 h-4 text-green-500 mr-3 group-hover/item:scale-125 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
                     {feature}
@@ -961,7 +1097,9 @@ const TechnologyStack3D = () => {
     { name: "ZBrush", icon: "✏️", color: "from-gray-500 to-slate-500" },
     { name: "Substance", icon: "🎨", color: "from-amber-500 to-orange-500" },
     { name: "Unreal", icon: "🌌", color: "from-purple-500 to-pink-500" },
-    { name: "After Effects", icon: "✨", color: "from-purple-600 to-indigo-600" }
+    { name: "After Effects", icon: "✨", color: "from-purple-600 to-indigo-600" },
+    { name: "Maya", icon: "🌀", color: "from-cyan-500 to-blue-500" },
+    { name: "Unity", icon: "🎮", color: "from-gray-400 to-gray-600" }
   ];
 
   return (
@@ -980,12 +1118,15 @@ const TechnologyStack3D = () => {
           {technologies.map((tech, index) => (
             <div 
               key={index}
-              className="group p-6 bg-slate-800/50 rounded-2xl border border-slate-700 backdrop-blur-sm text-center transition-all duration-300 hover:border-orange-500/50 hover:transform hover:scale-110 hover:shadow-2xl hover:shadow-orange-500/10"
+              className="group relative p-6 bg-slate-800/50 rounded-2xl border border-slate-700 backdrop-blur-sm text-center transition-all duration-300 hover:border-orange-500/50 hover:transform hover:scale-110 hover:shadow-2xl hover:shadow-orange-500/10 overflow-hidden"
             >
-              <div className={`w-16 h-16 bg-gradient-to-br ${tech.color} rounded-2xl flex items-center justify-center text-2xl mb-4 mx-auto group-hover:scale-125 transition-transform duration-300`}>
+              {/* Background gradient */}
+              <div className={`absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-500 bg-gradient-to-br ${tech.color}`}></div>
+              
+              <div className={`w-16 h-16 bg-gradient-to-br ${tech.color} rounded-2xl flex items-center justify-center text-2xl mb-4 mx-auto group-hover:scale-125 transition-transform duration-300 relative z-10`}>
                 {tech.icon}
               </div>
-              <div className="text-white font-semibold">{tech.name}</div>
+              <div className="text-white font-semibold relative z-10">{tech.name}</div>
             </div>
           ))}
         </div>
@@ -1010,11 +1151,14 @@ const EnhancedCTASection3D = () => {
           Let's collaborate to create stunning 3D experiences that captivate your audience and elevate your brand.
         </p>
 
-        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
           <Link 
             to="/contact"
-            className="group bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 px-8 py-4 rounded-xl text-lg font-semibold text-white transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/25 inline-flex items-center justify-center"
+            className="group relative bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 px-8 py-4 rounded-xl text-lg font-semibold text-white transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/25 inline-flex items-center justify-center overflow-hidden"
           >
+            {/* Animated background */}
+            <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-pink-500 opacity-0 group-hover:opacity-20 transition-opacity duration-500"></div>
+            
             <span className="relative z-10 flex items-center">
               Start Your Project
               <svg className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1025,24 +1169,27 @@ const EnhancedCTASection3D = () => {
           
           <Link 
             to="/projects"
-            className="group bg-slate-800/50 border border-slate-700 hover:border-purple-500/50 px-8 py-4 rounded-xl text-lg font-semibold text-white transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/10 inline-flex items-center justify-center"
+            className="group relative bg-slate-800/50 border border-slate-700 hover:border-purple-500/50 px-8 py-4 rounded-xl text-lg font-semibold text-white transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/10 inline-flex items-center justify-center overflow-hidden"
           >
-            View Our Projects
+            {/* Animated background */}
+            <div className="absolute inset-0 bg-purple-500/0 group-hover:bg-purple-500/10 transition-colors duration-500"></div>
+            
+            <span className="relative z-10">View Our 3D Models</span>
           </Link>
         </div>
 
-        <div className="mt-12 grid grid-cols-3 gap-8 max-w-2xl mx-auto">
-          <div className="text-center">
-            <div className="text-3xl font-bold text-white mb-2">50+</div>
-            <div className="text-gray-400">Projects</div>
+        <div className="grid grid-cols-3 gap-8 max-w-2xl mx-auto">
+          <div className="text-center group">
+            <div className="text-3xl font-bold text-white mb-2 group-hover:text-purple-400 transition-colors">50+</div>
+            <div className="text-gray-400 group-hover:text-gray-300 transition-colors">Projects</div>
           </div>
-          <div className="text-center">
-            <div className="text-3xl font-bold text-white mb-2">100%</div>
-            <div className="text-gray-400">Client Satisfaction</div>
+          <div className="text-center group">
+            <div className="text-3xl font-bold text-white mb-2 group-hover:text-green-400 transition-colors">100%</div>
+            <div className="text-gray-400 group-hover:text-gray-300 transition-colors">Client Satisfaction</div>
           </div>
-          <div className="text-center">
-            <div className="text-3xl font-bold text-white mb-2">24/7</div>
-            <div className="text-gray-400">Support</div>
+          <div className="text-center group">
+            <div className="text-3xl font-bold text-white mb-2 group-hover:text-blue-400 transition-colors">24/7</div>
+            <div className="text-gray-400 group-hover:text-gray-300 transition-colors">Support</div>
           </div>
         </div>
       </div>
