@@ -1,370 +1,431 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { gsap } from 'gsap';
 import { useAuth } from '../hooks/useAuth';
 
+const RESUME_URL = 'https://drive.google.com/file/d/1ZugLfPpdKJZpxFu9qb_INK8T5YHrbVPn/view?usp=sharing';
+
 const Navbar = () => {
   const navRef = useRef(null);
-  const logoRef = useRef(null);
-  const menuRef = useRef(null);
+  const brandRef = useRef(null);
+  const resourcesRef = useRef(null);
   const location = useLocation();
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const [isLinksOpen, setIsLinksOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [scrollProgress, setScrollProgress] = useState(0);
+
+  const navItems = useMemo(
+    () => [
+      { path: '/', label: 'Home', eyebrow: 'Intro' },
+      { path: '/projects', label: 'Projects', eyebrow: 'Portfolio' },
+      { path: '/contact', label: 'Contact', eyebrow: 'Brief' },
+    ],
+    []
+  );
+
+  const resourceLinks = useMemo(
+    () => [
+      {
+        label: 'Resume',
+        description: 'Capabilities, tools, and recent experience.',
+        href: RESUME_URL,
+        external: true,
+        badge: 'PDF'
+      },
+      {
+        label: 'Project Library',
+        description: 'Browse the complete 3D portfolio collection.',
+        href: '/projects',
+        external: false,
+        badge: 'Route'
+      },
+      {
+        label: user ? 'Admin Dashboard' : 'Admin Login',
+        description: 'Manage uploads, cases, and portfolio content.',
+        href: '/admin',
+        external: false,
+        badge: 'Secure'
+      }
+    ],
+    [user]
+  );
 
   useEffect(() => {
-    // Navbar entrance animation
     const tl = gsap.timeline();
+
     tl.fromTo(
       navRef.current,
-      { y: -100, opacity: 0 },
-      { y: 0, opacity: 1, duration: 1, ease: 'power3.out' }
+      { y: -80, opacity: 0 },
+      { y: 0, opacity: 1, duration: 0.9, ease: 'power3.out' }
     );
     tl.fromTo(
-      logoRef.current,
-      { scale: 0, rotation: -180 },
-      { scale: 1, rotation: 0, duration: 0.8, ease: 'back.out(1.7)' },
-      '-=0.5'
+      brandRef.current,
+      { scale: 0.92, opacity: 0 },
+      { scale: 1, opacity: 1, duration: 0.6, ease: 'power2.out' },
+      '-=0.45'
     );
     tl.fromTo(
       '.nav-item',
-      { y: -20, opacity: 0 },
-      { y: 0, opacity: 1, duration: 0.6, stagger: 0.1, ease: 'power3.out' },
-      '-=0.3'
+      { y: -18, opacity: 0 },
+      { y: 0, opacity: 1, duration: 0.45, stagger: 0.08, ease: 'power2.out' },
+      '-=0.35'
     );
 
-    // Scroll effect
     const handleScroll = () => {
-      const isScrolled = window.scrollY > 50;
-      setScrolled(isScrolled);
+      const nextScrolled = window.scrollY > 28;
+      const pageHeight = document.body.scrollHeight - window.innerHeight;
+
+      setScrolled(nextScrolled);
+      setScrollProgress(pageHeight > 0 ? (window.scrollY / pageHeight) * 100 : 0);
     };
+
+    handleScroll();
     window.addEventListener('scroll', handleScroll);
-    
+
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Handle mobile menu animations
   useEffect(() => {
     if (isMobileMenuOpen) {
       gsap.to('.mobile-menu', {
         x: 0,
-        duration: 0.5,
+        duration: 0.45,
         ease: 'power3.out'
       });
-      gsap.fromTo('.mobile-nav-item', 
-        { x: -50, opacity: 0 },
-        { x: 0, opacity: 1, duration: 0.4, stagger: 0.1 }
+      gsap.fromTo(
+        '.mobile-nav-item',
+        { x: 32, opacity: 0 },
+        { x: 0, opacity: 1, duration: 0.35, stagger: 0.06, ease: 'power2.out' }
       );
     } else {
       gsap.to('.mobile-menu', {
         x: '100%',
-        duration: 0.5,
+        duration: 0.35,
         ease: 'power3.in'
       });
     }
   }, [isMobileMenuOpen]);
+
+  useEffect(() => {
+    setIsLinksOpen(false);
+    setIsMobileMenuOpen(false);
+  }, [location.pathname]);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (resourcesRef.current && !resourcesRef.current.contains(event.target)) {
+        setIsLinksOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const handleLogout = () => {
     logout();
     navigate('/');
   };
 
-  const socialLinks = [
-    { name: 'LinkedIn', url: 'https://linkedin.com', icon: '💼', color: 'hover:text-blue-400' },
-    { name: 'GitHub', url: 'https://github.com', icon: '💻', color: 'hover:text-purple-400' },
-    { name: 'Instagram', url: 'https://instagram.com', icon: '📷', color: 'hover:text-pink-400' },
-    { name: 'Behance', url: 'https://behance.net', icon: '🎨', color: 'hover:text-green-400' },
-  ];
-
-  const navItems = [
-    { path: '/', label: 'Home', icon: '🏠' },
-    { path: '/projects', label: 'Projects', icon: '🚀' },
-    { path: '/contact', label: 'Contact', icon: '📞' },
-  ];
-
   return (
     <>
-      {/* Enhanced Navbar */}
-      <nav 
-        ref={navRef} 
-        className={`fixed w-full z-50 transition-all duration-500 ${
-          scrolled 
-            ? 'glass-effect border-b border-slate-700/50 backdrop-blur-xl' 
-            : 'bg-transparent'
+      <nav
+        ref={navRef}
+        className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 ${
+          scrolled ? 'py-2' : 'py-3'
         }`}
       >
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex justify-between items-center">
-            {/* 3D Logo */}
-            <Link 
-              ref={logoRef}
-              to="/" 
-              className="group relative"
-            >
-              <div className="flex items-center space-x-3">
+        <div className="mx-auto max-w-7xl px-4 sm:px-5 lg:px-8">
+          <div
+            className={`rounded-[24px] transition-all duration-500 ${
+              scrolled
+                ? 'panel-surface border-white/10'
+                : 'border border-white/10 bg-white/6 shadow-[0_20px_60px_rgba(2,6,23,0.28)] backdrop-blur-xl'
+            }`}
+          >
+            <div className="flex items-center justify-between gap-3 px-4 py-2.5 sm:px-5">
+              <Link ref={brandRef} to="/" className="group relative flex items-center gap-4">
                 <div className="relative">
-                 <div className="w-12 h-12 rounded-2xl flex items-center justify-center transform group-hover:rotate-12 transition-transform duration-500 shadow-2xl shadow-blue-500/25 overflow-hidden">
-  <img 
-    src="/mainlogo.jpg" 
-    alt="Artin3D Logo" 
-    className="w-full h-full object-cover"
-  />
-</div>
-                  {/* 3D Effect */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-blue-400 to-purple-500 rounded-2xl blur-lg opacity-50 group-hover:opacity-70 transition-opacity duration-500 -z-10"></div>
+                  <div className="h-10 w-10 overflow-hidden rounded-xl border border-white/15 bg-white/10 shadow-[0_0_0_1px_rgba(255,255,255,0.04)] transition-transform duration-500 group-hover:scale-105 group-hover:-rotate-3 sm:h-11 sm:w-11">
+                    <img
+                      src="/mainlogo.jpg"
+                      alt="Artin3D Logo"
+                      className="h-full w-full object-cover"
+                    />
+                  </div>
+                  <div className="absolute inset-0 -z-10 rounded-2xl bg-gradient-to-br from-cyan-400/30 to-amber-300/30 blur-xl transition-opacity duration-500 group-hover:opacity-100"></div>
                 </div>
+
                 <div className="flex flex-col">
-                  <span className="text-2xl font-bold text-white group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-blue-400 group-hover:to-purple-400 group-hover:bg-clip-text transition-all duration-500">
+                  <span className="text-lg font-bold tracking-tight text-white transition-colors duration-300 group-hover:text-cyan-100 sm:text-xl">
                     ArtIn3D
                   </span>
-                  <span className="text-xs text-gray-400 group-hover:text-blue-300 transition-colors">
-                    Interactive Showcase
-                  </span>
-                </div>
-              </div>
-            </Link>
-
-            {/* Desktop Navigation */}
-            <div ref={menuRef} className="hidden lg:flex items-center space-x-8">
-              {navItems.map((item, index) => (
-                <Link
-                  key={item.path}
-                  to={item.path}
-                  className={`nav-item group relative flex items-center space-x-2 px-4 py-2 rounded-xl transition-all duration-300 ${
-                    location.pathname === item.path 
-                      ? 'text-white bg-blue-500/20 border border-blue-500/30' 
-                      : 'text-gray-300 hover:text-white hover:bg-slate-800/50'
-                  }`}
-                >
-                  <span className="text-lg">{item.icon}</span>
-                  <span className="font-medium">{item.label}</span>
-                  
-                  {/* Hover effect */}
-                  <div className={`absolute inset-0 rounded-xl bg-gradient-to-r from-blue-500/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10 ${
-                    location.pathname === item.path ? 'opacity-100' : ''
-                  }`}></div>
-                  
-                  {/* Active indicator */}
-                  {location.pathname === item.path && (
-                    <div className="absolute -bottom-2 left-1/2 w-1 h-1 bg-blue-400 rounded-full transform -translate-x-1/2 animate-ping"></div>
-                  )}
-                </Link>
-              ))}
-
-              {/* Enhanced Links Dropdown */}
-              <div className="nav-item relative">
-                <button
-                  onClick={() => setIsLinksOpen(!isLinksOpen)}
-                  className={`group flex items-center space-x-2 px-4 py-2 rounded-xl transition-all duration-300 ${
-                    isLinksOpen 
-                      ? 'text-white bg-purple-500/20 border border-purple-500/30' 
-                      : 'text-gray-300 hover:text-white hover:bg-slate-800/50'
-                  }`}
-                >
-                  <span className="text-lg">🔗</span>
-                  <span className="font-medium">Connect</span>
-                  <span className={`transform transition-transform duration-300 ${
-                    isLinksOpen ? 'rotate-180' : ''
-                  }`}>▼</span>
-                </button>
-
-                {isLinksOpen && (
-                  <div className="absolute top-full left-0 mt-3 w-64 bg-slate-800/95 backdrop-blur-xl border border-slate-700 rounded-2xl shadow-2xl z-50 overflow-hidden">
-                    {/* Dropdown header */}
-                    <div className="p-4 border-b border-slate-700 bg-gradient-to-r from-slate-800 to-slate-900">
-                      <h3 className="text-white font-bold text-lg">Let's Connect</h3>
-                      <p className="text-gray-400 text-sm">Find me on social platforms</p>
-                    </div>
-                    
-                    <div className="p-3 space-y-2">
-                      {socialLinks.map((link, index) => (
-                        <a
-                          key={index}
-                          href={link.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className={`flex items-center space-x-4 p-3 rounded-xl transition-all duration-300 hover:transform hover:scale-105 ${link.color} hover:bg-slate-700/50 border border-transparent hover:border-slate-600`}
-                          onClick={() => setIsLinksOpen(false)}
-                        >
-                          <div className="w-10 h-10 bg-slate-700 rounded-lg flex items-center justify-center text-lg">
-                            {link.icon}
-                          </div>
-                          <div className="flex-1">
-                            <div className="text-white font-medium">{link.name}</div>
-                            <div className="text-gray-400 text-xs">{link.url.replace('https://', '')}</div>
-                          </div>
-                          <div className="text-gray-400 text-lg">↗</div>
-                        </a>
-                      ))}
-                    </div>
+                  <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.24em] text-slate-400 sm:text-[11px]">
+                    <span>3D Visual Studio</span>
+                    <span className="hidden h-1 w-1 rounded-full bg-cyan-300 sm:block"></span>
+                    <span className="hidden sm:block text-cyan-200/80">Available</span>
                   </div>
+                </div>
+              </Link>
+
+              <div className="hidden lg:flex items-center gap-3">
+                <div className="flex items-center gap-2 rounded-full border border-white/10 bg-slate-950/30 px-2 py-1.5 backdrop-blur-xl">
+                  {navItems.map((item) => (
+                    <Link
+                      key={item.path}
+                      to={item.path}
+                      className={`nav-item rounded-full px-4 py-2 text-sm font-semibold transition-all duration-300 ${
+                        location.pathname === item.path
+                          ? 'bg-white text-slate-950 shadow-[0_8px_30px_rgba(255,255,255,0.12)]'
+                          : 'text-slate-300 hover:bg-white/8 hover:text-white'
+                      }`}
+                    >
+                      <span className="block leading-tight">{item.label}</span>
+                      <span className="block text-[10px] uppercase tracking-[0.2em] text-slate-500">
+                        {item.eyebrow}
+                      </span>
+                    </Link>
+                  ))}
+                </div>
+
+                <div ref={resourcesRef} className="nav-item relative">
+                  <button
+                    onClick={() => setIsLinksOpen(!isLinksOpen)}
+                    className={`group flex items-center gap-2.5 rounded-full border px-4 py-2.5 text-sm font-semibold transition-all duration-300 ${
+                      isLinksOpen
+                        ? 'border-cyan-300/30 bg-cyan-300/10 text-white'
+                        : 'border-white/10 bg-slate-950/30 text-slate-300 hover:border-white/15 hover:text-white'
+                    }`}
+                  >
+                    <span>Resources</span>
+                    <span className="rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] uppercase tracking-[0.24em] text-cyan-200/80">
+                      Quick
+                    </span>
+                    <span className={`text-xs transition-transform duration-300 ${isLinksOpen ? 'rotate-180' : ''}`}>
+                      ▼
+                    </span>
+                  </button>
+
+                  {isLinksOpen && (
+                    <div className="absolute right-0 top-full z-50 mt-4 w-[22rem] overflow-hidden rounded-3xl panel-surface">
+                      <div className="border-b border-white/10 px-5 py-4">
+                        <p className="text-sm font-semibold text-white">Studio Resources</p>
+                        <p className="mt-1 text-sm text-slate-400">
+                          Useful links for briefs, portfolio review, and account access.
+                        </p>
+                      </div>
+
+                      <div className="space-y-2 p-3">
+                        {resourceLinks.map((link) => {
+                          const itemClassName = 'flex items-start gap-4 rounded-2xl border border-transparent px-4 py-3 transition-all duration-300 hover:border-white/10 hover:bg-white/5';
+
+                          if (link.external) {
+                            return (
+                              <a
+                                key={link.label}
+                                href={link.href}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className={itemClassName}
+                                onClick={() => setIsLinksOpen(false)}
+                              >
+                                <div className="mt-0.5 flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-400/20 to-amber-300/20 text-sm font-bold text-cyan-100">
+                                  {link.badge.slice(0, 1)}
+                                </div>
+                                <div className="flex-1">
+                                  <div className="flex items-center justify-between gap-3">
+                                    <span className="font-semibold text-white">{link.label}</span>
+                                    <span className="rounded-full border border-white/10 px-2 py-0.5 text-[10px] uppercase tracking-[0.22em] text-slate-400">
+                                      {link.badge}
+                                    </span>
+                                  </div>
+                                  <p className="mt-1 text-sm leading-relaxed text-slate-400">{link.description}</p>
+                                </div>
+                              </a>
+                            );
+                          }
+
+                          return (
+                            <Link
+                              key={link.label}
+                              to={link.href}
+                              className={itemClassName}
+                              onClick={() => setIsLinksOpen(false)}
+                            >
+                              <div className="mt-0.5 flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-400/20 to-amber-300/20 text-sm font-bold text-cyan-100">
+                                {link.badge.slice(0, 1)}
+                              </div>
+                              <div className="flex-1">
+                                <div className="flex items-center justify-between gap-3">
+                                  <span className="font-semibold text-white">{link.label}</span>
+                                  <span className="rounded-full border border-white/10 px-2 py-0.5 text-[10px] uppercase tracking-[0.22em] text-slate-400">
+                                    {link.badge}
+                                  </span>
+                                </div>
+                                <p className="mt-1 text-sm leading-relaxed text-slate-400">{link.description}</p>
+                              </div>
+                            </Link>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {user ? (
+                  <div className="nav-item flex items-center gap-3">
+                    <Link
+                      to="/admin"
+                      className="rounded-full bg-gradient-to-r from-amber-300 via-orange-300 to-cyan-300 px-4 py-2.5 text-sm font-bold text-slate-950 transition-all duration-300 hover:scale-[1.03] hover:shadow-[0_20px_45px_rgba(251,191,36,0.28)]"
+                    >
+                      Dashboard
+                    </Link>
+                    <button
+                      onClick={handleLogout}
+                      className="rounded-full border border-red-400/20 bg-red-500/8 px-4 py-2.5 text-sm font-semibold text-red-200 transition-all duration-300 hover:border-red-300/30 hover:bg-red-500/12"
+                    >
+                      Logout
+                    </button>
+                  </div>
+                ) : (
+                  <Link
+                    to="/admin"
+                    className="nav-item rounded-full bg-gradient-to-r from-amber-300 via-orange-300 to-cyan-300 px-4 py-2.5 text-sm font-bold text-slate-950 transition-all duration-300 hover:scale-[1.03] hover:shadow-[0_20px_45px_rgba(251,191,36,0.28)]"
+                  >
+                    Admin Login
+                  </Link>
                 )}
               </div>
 
-              {/* Auth Section */}
-              {user ? (
-                <div className="nav-item flex items-center space-x-4">
-                  <Link
-                    to="/admin"
-                    className="group relative bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 px-6 py-2.5 rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-blue-500/25 flex items-center space-x-2"
-                  >
-                    <span>⚡</span>
-                    <span>Admin Panel</span>
-                  </Link>
-                  <button
-                    onClick={handleLogout}
-                    className="group flex items-center space-x-2 px-4 py-2.5 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-xl transition-all duration-300 border border-transparent hover:border-red-500/30"
-                  >
-                    <span>🚪</span>
-                    <span>Logout</span>
-                  </button>
+              <div className="hidden items-center gap-3 md:flex lg:hidden">
+                <div className="rounded-full border border-cyan-300/20 bg-cyan-300/8 px-3 py-1.5 text-[10px] uppercase tracking-[0.22em] text-cyan-100/80">
+                  Available for new work
                 </div>
-              ) : (
-                <Link
-                  to="/admin"
-                  className="nav-item group relative bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 px-6 py-2.5 rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-blue-500/25 flex items-center space-x-2"
-                >
-                  <span>🔐</span>
-                  <span>Admin Login</span>
-                </Link>
-              )}
-            </div>
+              </div>
 
-            {/* Mobile Menu Button */}
-            <button
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="lg:hidden w-12 h-12 flex flex-col items-center justify-center space-y-1.5 bg-slate-800/50 rounded-xl border border-slate-700 hover:border-slate-600 transition-all duration-300"
-            >
-              <span className={`w-6 h-0.5 bg-white transition-all duration-300 ${
-                isMobileMenuOpen ? 'rotate-45 translate-y-2' : ''
-              }`}></span>
-              <span className={`w-6 h-0.5 bg-white transition-all duration-300 ${
-                isMobileMenuOpen ? 'opacity-0' : 'opacity-100'
-              }`}></span>
-              <span className={`w-6 h-0.5 bg-white transition-all duration-300 ${
-                isMobileMenuOpen ? '-rotate-45 -translate-y-2' : ''
-              }`}></span>
-            </button>
+              <button
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                className="flex h-11 w-11 flex-col items-center justify-center gap-1.5 rounded-2xl border border-white/10 bg-slate-950/30 transition-all duration-300 hover:border-white/20 hover:bg-white/8 lg:hidden"
+                aria-label="Toggle navigation"
+              >
+                <span className={`h-0.5 w-6 bg-white transition-all duration-300 ${isMobileMenuOpen ? 'translate-y-2 rotate-45' : ''}`}></span>
+                <span className={`h-0.5 w-6 bg-white transition-all duration-300 ${isMobileMenuOpen ? 'opacity-0' : 'opacity-100'}`}></span>
+                <span className={`h-0.5 w-6 bg-white transition-all duration-300 ${isMobileMenuOpen ? '-translate-y-2 -rotate-45' : ''}`}></span>
+              </button>
+            </div>
           </div>
         </div>
       </nav>
 
-      {/* Mobile Menu Overlay */}
-      <div className={`lg:hidden fixed inset-0 z-40 transition-all duration-500 ${
-        isMobileMenuOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
+      <div className={`fixed inset-0 z-40 transition-all duration-500 lg:hidden ${
+        isMobileMenuOpen ? 'opacity-100' : 'pointer-events-none opacity-0'
       }`}>
-        {/* Backdrop */}
-        <div 
-          className="absolute inset-0 bg-slate-900/80 backdrop-blur-xl"
+        <div
+          className="absolute inset-0 bg-slate-950/70 backdrop-blur-xl"
           onClick={() => setIsMobileMenuOpen(false)}
         ></div>
-        
-        {/* Mobile Menu Panel */}
-        <div className="mobile-menu absolute top-0 right-0 h-full w-80 bg-slate-800/95 backdrop-blur-xl border-l border-slate-700 transform translate-x-full">
-          <div className="p-6 h-full flex flex-col">
-            {/* Header */}
-            <div className="flex items-center justify-between mb-8">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center text-lg">
-                  🎨
-                </div>
-                <div>
-                  <div className="text-white font-bold">3D Portfolio</div>
-                  <div className="text-gray-400 text-xs">Navigation</div>
-                </div>
+
+        <div className="mobile-menu absolute right-0 top-0 h-full w-full max-w-sm translate-x-full panel-surface border-l border-white/10">
+          <div className="flex h-full flex-col px-6 pb-6 pt-5">
+            <div className="mb-8 flex items-center justify-between">
+              <div>
+                <div className="text-sm font-semibold uppercase tracking-[0.26em] text-cyan-200/80">ArtIn3D</div>
+                <div className="mt-1 text-2xl font-bold text-white">Studio Navigation</div>
               </div>
               <button
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="w-10 h-10 flex items-center justify-center text-gray-400 hover:text-white transition-colors"
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 text-slate-300 transition-colors hover:text-white"
+                aria-label="Close navigation"
               >
-                ✕
+                X
               </button>
             </div>
 
-            {/* Mobile Navigation Items */}
-            <div className="space-y-4 flex-1">
-              {navItems.map((item, index) => (
+            <div className="space-y-3">
+              {navItems.map((item) => (
                 <Link
                   key={item.path}
                   to={item.path}
-                  className="mobile-nav-item flex items-center space-x-4 p-4 rounded-xl transition-all duration-300 hover:bg-slate-700/50 border border-transparent hover:border-slate-600"
+                  className={`mobile-nav-item block rounded-3xl border px-5 py-4 transition-all duration-300 ${
+                    location.pathname === item.path
+                      ? 'border-cyan-300/25 bg-cyan-300/10'
+                      : 'border-white/10 bg-white/4 hover:bg-white/6'
+                  }`}
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
-                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-xl ${
-                    location.pathname === item.path 
-                      ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' 
-                      : 'bg-slate-700 text-gray-400'
-                  }`}>
-                    {item.icon}
-                  </div>
-                  <div className="flex-1">
-                    <div className={`font-medium ${
-                      location.pathname === item.path ? 'text-white' : 'text-gray-300'
-                    }`}>
-                      {item.label}
-                    </div>
-                    <div className="text-gray-400 text-sm">Navigate to {item.label}</div>
-                  </div>
-                  {location.pathname === item.path && (
-                    <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
-                  )}
+                  <div className="text-sm uppercase tracking-[0.24em] text-slate-400">{item.eyebrow}</div>
+                  <div className="mt-1 text-lg font-semibold text-white">{item.label}</div>
                 </Link>
               ))}
+            </div>
 
-              {/* Social Links in Mobile */}
-              <div className="pt-6 border-t border-slate-700">
-                <h3 className="text-white font-bold mb-4">Social Links</h3>
-                <div className="grid grid-cols-2 gap-3">
-                  {socialLinks.map((link, index) => (
+            <div className="mt-8 rounded-[28px] border border-white/10 bg-slate-950/35 p-4">
+              <div className="mb-3 text-sm font-semibold text-white">Resources</div>
+              <div className="space-y-2">
+                {resourceLinks.map((link) => (
+                  link.external ? (
                     <a
-                      key={index}
-                      href={link.url}
+                      key={link.label}
+                      href={link.href}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center space-x-3 p-3 rounded-xl bg-slate-700/50 hover:bg-slate-700 transition-all duration-300 border border-slate-600 hover:border-slate-500"
+                      className="mobile-nav-item block rounded-2xl border border-white/8 px-4 py-3 transition-all duration-300 hover:bg-white/5"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
-                      <span className="text-lg">{link.icon}</span>
-                      <span className="text-white text-sm font-medium">{link.name}</span>
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="font-semibold text-white">{link.label}</span>
+                        <span className="text-[10px] uppercase tracking-[0.22em] text-slate-400">{link.badge}</span>
+                      </div>
+                      <div className="mt-1 text-sm text-slate-400">{link.description}</div>
                     </a>
-                  ))}
-                </div>
+                  ) : (
+                    <Link
+                      key={link.label}
+                      to={link.href}
+                      className="mobile-nav-item block rounded-2xl border border-white/8 px-4 py-3 transition-all duration-300 hover:bg-white/5"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="font-semibold text-white">{link.label}</span>
+                        <span className="text-[10px] uppercase tracking-[0.22em] text-slate-400">{link.badge}</span>
+                      </div>
+                      <div className="mt-1 text-sm text-slate-400">{link.description}</div>
+                    </Link>
+                  )
+                ))}
               </div>
             </div>
 
-            {/* Auth Section Mobile */}
-            <div className="pt-6 border-t border-slate-700">
+            <div className="mt-auto pt-8">
               {user ? (
                 <div className="space-y-3">
                   <Link
                     to="/admin"
-                    className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 py-3 rounded-xl transition-all duration-300 flex items-center justify-center space-x-2"
+                    className="block rounded-full bg-gradient-to-r from-amber-300 via-orange-300 to-cyan-300 px-5 py-3 text-center text-sm font-bold text-slate-950"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
-                    <span>⚡</span>
-                    <span>Admin Panel</span>
+                    Open Dashboard
                   </Link>
                   <button
                     onClick={() => {
                       handleLogout();
                       setIsMobileMenuOpen(false);
                     }}
-                    className="w-full py-3 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-xl transition-all duration-300 border border-red-500/30 flex items-center justify-center space-x-2"
+                    className="w-full rounded-full border border-red-400/20 px-5 py-3 text-sm font-semibold text-red-200"
                   >
-                    <span>🚪</span>
-                    <span>Logout</span>
+                    Logout
                   </button>
                 </div>
               ) : (
                 <Link
                   to="/admin"
-                  className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 py-3 rounded-xl transition-all duration-300 flex items-center justify-center space-x-2"
+                  className="block rounded-full bg-gradient-to-r from-amber-300 via-orange-300 to-cyan-300 px-5 py-3 text-center text-sm font-bold text-slate-950"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
-                  <span>🔐</span>
-                  <span>Admin Login</span>
+                  Admin Login
                 </Link>
               )}
             </div>
@@ -372,13 +433,10 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* Scroll Progress Bar */}
-      <div className="fixed top-0 left-0 w-full h-1 z-50">
-        <div 
-          className="h-full bg-gradient-to-r from-blue-500 to-purple-600 transition-all duration-300"
-          style={{
-            width: `${scrolled ? (window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100 : 0}%`
-          }}
+      <div className="fixed left-0 top-0 z-50 h-1 w-full overflow-hidden">
+        <div
+          className="h-full bg-gradient-to-r from-cyan-300 via-blue-400 to-amber-300 transition-all duration-300"
+          style={{ width: `${scrollProgress}%` }}
         ></div>
       </div>
     </>

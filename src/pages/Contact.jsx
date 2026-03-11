@@ -353,7 +353,7 @@ const Contact = () => {
 
       <div 
         ref={containerRef}
-        className="min-h-screen pt-20 px-6 py-8 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 relative overflow-hidden"
+        className="page-shell min-h-screen pt-24 px-6 py-8 relative overflow-hidden sm:pt-28"
       >
         {/* Animated Background Elements */}
         <div className="absolute inset-0 overflow-hidden">

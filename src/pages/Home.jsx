@@ -2,12 +2,15 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { gsap } from 'gsap';
 import axios from 'axios';
+import * as THREE from 'three';
+import NET from 'vanta/dist/vanta.net.min';
 
 const API_BASE_URL = 'https://sakthi-portfolio-backend.onrender.com';
 
 const Home = () => {
   const heroRef = useRef(null);
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const vantaRef = useRef(null);
+  const vantaEffectRef = useRef(null);
   const [activeModel, setActiveModel] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState(null);
@@ -138,18 +141,19 @@ const Home = () => {
   };
 
   useEffect(() => {
-    setTimeout(() => setIsLoading(false), 2000);
+    const loadingTimer = setTimeout(() => setIsLoading(false), 2000);
 
-    const handleMouseMove = (e) => {
-      setMousePosition({
-        x: (e.clientX / window.innerWidth - 0.5) * 40,
-        y: (e.clientY / window.innerHeight - 0.5) * 40
-      });
-    };
-    window.addEventListener('mousemove', handleMouseMove);
+    if (isLoading) {
+      return () => clearTimeout(loadingTimer);
+    }
+
+    const targets = gsap.utils.toArray('.floating-element');
+    if (targets.length === 0) {
+      return () => clearTimeout(loadingTimer);
+    }
 
     const tl = gsap.timeline();
-    tl.fromTo('.floating-element', 
+    tl.fromTo(targets, 
       { y: 100, opacity: 0, rotationY: 180 },
       { 
         y: 0, 
@@ -161,8 +165,59 @@ const Home = () => {
       }
     );
 
-    return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, []);
+    return () => {
+      clearTimeout(loadingTimer);
+      tl.kill();
+    };
+  }, [isLoading]);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    if (isLoading) {
+      return undefined;
+    }
+
+    const initVanta = async () => {
+      if (!vantaRef.current || vantaEffectRef.current) {
+        return;
+      }
+
+      window.THREE = THREE;
+
+      if (!isMounted || !vantaRef.current) {
+        return;
+      }
+
+      vantaEffectRef.current = NET({
+        el: vantaRef.current,
+        THREE,
+        mouseControls: true,
+        touchControls: true,
+        gyroControls: false,
+        minHeight: 200,
+        minWidth: 200,
+        scale: 1,
+        scaleMobile: 1,
+        backgroundColor: 0xefe2c8,
+        color: 0xf1971c,
+        points: 10,
+        maxDistance: 20,
+        spacing: 15,
+        showDots: true
+      });
+    };
+
+    initVanta();
+
+    return () => {
+      isMounted = false;
+      if (vantaEffectRef.current) {
+        vantaEffectRef.current.destroy();
+        vantaEffectRef.current = null;
+      }
+    };
+  }, [isLoading]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -187,7 +242,7 @@ const Home = () => {
   const currentProducts = get360ViewerProducts();
 
   return (
-    <div className="pt-16 overflow-hidden">
+    <div className="page-shell overflow-hidden pt-24 sm:pt-28">
       {/* Hidden SEO Content */}
       <div className="seo-rich-content" style={{ display: 'none' }}>
         <h1>ArtIn3D - Professional 3D Modeling Studio</h1>
@@ -204,65 +259,54 @@ const Home = () => {
       </div>
 
       {/* Hero Section */}
-      <section ref={heroRef} className="min-h-screen flex items-center justify-center px-6 lg:px-20 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 relative overflow-hidden">
-        
-        {/* Background Grid */}
-        <div className="absolute inset-0 opacity-20">
-          <div 
-            className="absolute inset-0"
-            style={{
-              backgroundImage: `
-                linear-gradient(rgba(59, 130, 246, 0.1) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(59, 130, 246, 0.1) 1px, transparent 1px)
-              `,
-              backgroundSize: '100px 100px',
-              transform: `perspective(1000px) rotateX(${5 + mousePosition.y * 0.1}deg) rotateY(${mousePosition.x * 0.1}deg)`,
-            }}
-          ></div>
-        </div>
-
-        <FloatingShapes mousePosition={mousePosition} />
+      <section ref={heroRef} className="min-h-screen flex items-center justify-center px-6 lg:px-20 relative overflow-hidden bg-[#efe2c8]">
+        <div ref={vantaRef} className="absolute inset-0"></div>
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(239,226,200,0.04)_0%,rgba(239,226,200,0.1)_100%)]"></div>
+        <div className="absolute inset-y-0 left-0 w-40 bg-gradient-to-r from-[#efe2c8]/40 to-transparent"></div>
+        <div className="hero-orb absolute left-[6%] top-[18%] h-28 w-28 rounded-full bg-orange-400/15 blur-3xl"></div>
+        <div className="hero-orb hero-orb-delay absolute right-[14%] top-[28%] h-36 w-36 rounded-full bg-amber-500/10 blur-3xl"></div>
 
         <div className="container mx-auto relative z-20">
-          <div className="flex flex-col lg:flex-row items-center justify-between gap-16">
-            
-            <div className="flex-1 hero-content text-center lg:text-left">
-              <div className="floating-element inline-flex items-center px-4 py-2 rounded-full bg-blue-500/20 border border-blue-500/30 text-blue-300 text-sm mb-6 backdrop-blur-sm">
-                <span className="w-2 h-2 bg-blue-500 rounded-full mr-2 animate-pulse"></span>
-                Professional 3D Modeling & Visualization
+          <div className="flex justify-start">
+            <div className="hero-content w-full max-w-4xl text-center lg:text-left">
+              <div className="floating-element inline-flex items-center px-4 py-2 rounded-full border border-orange-500/30 bg-white/45 text-sm text-orange-700 mb-6 backdrop-blur-sm">
+                <span className="mr-2 h-2 w-2 rounded-full bg-orange-500 animate-pulse"></span>
+                Crafted 3D Visuals for Products, Spaces, and Concepts
               </div>
 
-              <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold text-white mb-6 leading-tight">
+              <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-slate-950 mb-6 leading-[0.94]">
                 SakthiVel's
-                <span className="block bg-gradient-to-r from-blue-400 via-purple-500 to-cyan-400 bg-clip-text text-transparent animate-gradient">
+                <span className="block bg-gradient-to-r from-[#ff6a00] via-[#e09500] to-[#8b5a2b] bg-clip-text text-transparent animate-gradient">
                   Digital Art Gallery
                 </span>
               </h1>
 
-              <p className="text-xl text-gray-300 mb-8 max-w-2xl leading-relaxed">
-                Immerse yourself in stunning 3D creations. From architectural visualizations 
-                to character designs, explore every detail with our interactive 360° viewer.
+              <p className="text-lg sm:text-xl text-slate-700 mb-8 max-w-2xl leading-relaxed">
+                Clean presentation, strong detail, and immersive 3D storytelling. Explore curated work across product visualization, concept design, and interactive model experiences.
               </p>
 
-              <div className="floating-element mb-8 p-6 bg-slate-800/50 rounded-2xl border border-slate-700 backdrop-blur-sm">
-                <div className="flex items-center justify-between mb-4">
-                  <span className="text-gray-400">Featured Project:</span>
-                  <span className="text-blue-400 font-semibold flex items-center">
+              <div className="floating-element hero-metric-card hero-shimmer mb-8 max-w-3xl rounded-[2rem] border border-orange-500/20 bg-white/55 px-6 py-5 backdrop-blur-md shadow-[0_24px_60px_rgba(120,53,15,0.12)]">
+                <div className="mb-4 flex items-center justify-between gap-4">
+                  <div>
+                    <span className="text-sm uppercase tracking-[0.24em] text-slate-500">Featured Project</span>
+                    <div className="mt-1 text-base font-semibold text-slate-800">Current highlight from the portfolio</div>
+                  </div>
+                  <span className="flex items-center font-semibold text-orange-700 whitespace-nowrap">
                     {currentProducts[activeModel]?.icon} {currentProducts[activeModel]?.name}
                   </span>
                 </div>
-                <div className="grid grid-cols-3 gap-4 text-center">
-                  <div>
-                    <div className="text-2xl font-bold text-white">4K</div>
-                    <div className="text-gray-400 text-sm">Quality</div>
+                <div className="grid grid-cols-3 gap-3 text-center">
+                  <div className="rounded-2xl bg-white/45 px-4 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.45)]">
+                    <div className="text-2xl font-bold text-slate-950">4K</div>
+                    <div className="text-slate-500 text-sm">Quality</div>
                   </div>
-                  <div>
-                    <div className="text-2xl font-bold text-white">3D</div>
-                    <div className="text-gray-400 text-sm">Interactive</div>
+                  <div className="rounded-2xl bg-white/45 px-4 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.45)]">
+                    <div className="text-2xl font-bold text-slate-950">3D</div>
+                    <div className="text-slate-500 text-sm">Interactive</div>
                   </div>
-                  <div>
-                    <div className="text-2xl font-bold text-white">360°</div>
-                    <div className="text-gray-400 text-sm">Rotation</div>
+                  <div className="rounded-2xl bg-white/45 px-4 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.45)]">
+                    <div className="text-2xl font-bold text-slate-950">360°</div>
+                    <div className="text-slate-500 text-sm">Rotation</div>
                   </div>
                 </div>
               </div>
@@ -270,7 +314,7 @@ const Home = () => {
               <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
                 <button 
                   onClick={() => setSelectedCategory(0)}
-                  className="group bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 px-8 py-4 rounded-xl text-lg font-semibold text-white transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-blue-500/25 inline-flex items-center justify-center"
+                  className="group bg-gradient-to-r from-orange-600 to-amber-500 hover:from-orange-700 hover:to-amber-600 px-8 py-4 rounded-xl text-lg font-semibold text-white transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-orange-500/25 inline-flex items-center justify-center"
                 >
                   <span className="relative z-10 flex items-center">
                     Explore 3D Models
@@ -284,7 +328,7 @@ const Home = () => {
                   href="https://drive.google.com/file/d/1ZugLfPpdKJZpxFu9qb_INK8T5YHrbVPn/view?usp=sharing" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="group bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 px-8 py-4 rounded-xl text-lg font-semibold text-white transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-green-500/25 inline-flex items-center justify-center"
+                  className="group border border-slate-900/10 bg-slate-950 px-8 py-4 rounded-xl text-lg font-semibold text-amber-50 transition-all duration-300 hover:scale-105 hover:border-slate-950 hover:bg-[#1d2433] hover:shadow-2xl hover:shadow-slate-900/20 inline-flex items-center justify-center"
                 >
                   <span className="relative z-10 flex items-center">
                     View Resume
@@ -295,14 +339,6 @@ const Home = () => {
                   </span>
                 </a>
               </div>
-            </div>
-
-            <div className="flex-1 flex justify-center items-center">
-              <Advanced3DViewer 
-                activeModel={activeModel} 
-                products={currentProducts}
-                mousePosition={mousePosition}
-              />
             </div>
           </div>
         </div>
@@ -330,172 +366,6 @@ const LoadingScreen = () => {
         <div className="w-20 h-20 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
         <div className="text-white text-xl font-medium">Loading 3D Experience...</div>
         <div className="text-gray-400 text-sm mt-2">Preparing interactive models</div>
-      </div>
-    </div>
-  );
-};
-
-// Floating Shapes Component
-const FloatingShapes = ({ mousePosition }) => {
-  return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      <div 
-        className="absolute w-72 h-72 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-full blur-3xl"
-        style={{
-          top: '20%',
-          left: '10%',
-          transform: `translate(${mousePosition.x * 0.5}px, ${mousePosition.y * 0.5}px)`
-        }}
-      ></div>
-      <div 
-        className="absolute w-96 h-96 bg-gradient-to-r from-cyan-500/10 to-blue-500/10 rounded-full blur-3xl"
-        style={{
-          top: '60%',
-          right: '10%',
-          transform: `translate(${-mousePosition.x * 0.3}px, ${-mousePosition.y * 0.3}px)`
-        }}
-      ></div>
-      <div 
-        className="absolute w-64 h-64 bg-gradient-to-r from-green-500/10 to-emerald-500/10 rounded-full blur-3xl"
-        style={{
-          bottom: '20%',
-          left: '50%',
-          transform: `translate(${mousePosition.x * 0.2}px, ${-mousePosition.y * 0.2}px)`
-        }}
-      ></div>
-    </div>
-  );
-};
-
-// Advanced 3D Viewer Component
-const Advanced3DViewer = ({ activeModel, products, mousePosition }) => {
-  const [rotation, setRotation] = useState({ x: 0, y: 0, z: 0 });
-  const [scale, setScale] = useState(1);
-  const [isDragging, setIsDragging] = useState(false);
-  const [lastMousePos, setLastMousePos] = useState({ x: 0, y: 0 });
-
-  const currentProduct = products[activeModel];
-
-  const handleMouseDown = (e) => {
-    setIsDragging(true);
-    setLastMousePos({ x: e.clientX, y: e.clientY });
-  };
-
-  const handleMouseMove = (e) => {
-    if (!isDragging) return;
-    
-    const deltaX = e.clientX - lastMousePos.x;
-    const deltaY = e.clientY - lastMousePos.y;
-    
-    setRotation(prev => ({
-      x: prev.x + deltaY * 0.5,
-      y: prev.y + deltaX * 0.5,
-      z: prev.z
-    }));
-    
-    setLastMousePos({ x: e.clientX, y: e.clientY });
-  };
-
-  const handleMouseUp = () => {
-    setIsDragging(false);
-  };
-
-  const handleWheel = (e) => {
-    e.preventDefault();
-    const newScale = Math.min(Math.max(0.5, scale + e.deltaY * -0.01), 2);
-    setScale(newScale);
-  };
-
-  useEffect(() => {
-    if (!isDragging) {
-      const interval = setInterval(() => {
-        setRotation(prev => ({
-          ...prev,
-          y: prev.y + 0.5
-        }));
-      }, 50);
-      return () => clearInterval(interval);
-    }
-  }, [isDragging]);
-
-  return (
-    <div className="relative w-96 h-96">
-      <div 
-        className="absolute inset-0 bg-gradient-to-br from-slate-800 to-slate-900 rounded-3xl border-2 border-slate-700 backdrop-blur-sm overflow-hidden"
-        style={{
-          transform: `perspective(1500px) rotateX(${5 + mousePosition.y * 0.2}deg) rotateY(${mousePosition.x * 0.2}deg)`,
-          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)'
-        }}
-      >
-        {/* 3D Model Container */}
-        <div 
-          className="w-full h-full flex items-center justify-center cursor-grab active:cursor-grabbing"
-          onMouseDown={handleMouseDown}
-          onMouseMove={handleMouseMove}
-          onMouseUp={handleMouseUp}
-          onMouseLeave={handleMouseUp}
-          onWheel={handleWheel}
-        >
-          <div 
-            className="relative"
-            style={{
-              transform: `scale(${scale}) rotateX(${rotation.x}deg) rotateY(${rotation.y}deg) rotateZ(${rotation.z}deg)`,
-              transition: isDragging ? 'none' : 'transform 0.3s ease'
-            }}
-          >
-            {/* 3D Model Placeholder */}
-            <div className="w-52 h-52 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-3xl border-2 border-blue-400/30 backdrop-blur-sm flex items-center justify-center shadow-2xl">
-              <div className="text-7xl animate-pulse">{currentProduct?.icon}</div>
-            </div>
-            
-            {/* 3D Axis Indicators */}
-            <div className="absolute -top-6 -left-6 w-10 h-10 border-2 border-red-500/50 rounded-full animate-ping"></div>
-            <div className="absolute -top-6 -right-6 w-10 h-10 border-2 border-green-500/50 rounded-full animate-ping" style={{animationDelay: '0.2s'}}></div>
-            <div className="absolute -bottom-6 -left-6 w-10 h-10 border-2 border-blue-500/50 rounded-full animate-ping" style={{animationDelay: '0.4s'}}></div>
-          </div>
-        </div>
-
-        {/* Controls Panel */}
-        <div className="absolute bottom-6 left-6 right-6 bg-slate-900/90 backdrop-blur-sm rounded-xl p-4 border border-slate-700 shadow-xl">
-          <div className="flex items-center justify-between mb-3">
-            <div>
-              <div className="text-white font-bold text-lg">{currentProduct?.name}</div>
-              <div className="text-gray-400 text-sm">{currentProduct?.category}</div>
-            </div>
-            <div className="text-3xl animate-bounce">{currentProduct?.icon}</div>
-          </div>
-          
-          <div className="flex items-center justify-between">
-            <div className="flex gap-2">
-              <button 
-                onClick={() => setScale(1)}
-                className="w-10 h-10 bg-slate-700 hover:bg-slate-600 rounded-xl flex items-center justify-center text-white transition-all hover:scale-110"
-                title="Reset View"
-              >
-                ⟳
-              </button>
-              <button 
-                onClick={() => setScale(Math.min(scale + 0.1, 2))}
-                className="w-10 h-10 bg-slate-700 hover:bg-slate-600 rounded-xl flex items-center justify-center text-white transition-all hover:scale-110"
-                title="Zoom In"
-              >
-                +
-              </button>
-              <button 
-                onClick={() => setScale(Math.max(scale - 0.1, 0.5))}
-                className="w-10 h-10 bg-slate-700 hover:bg-slate-600 rounded-xl flex items-center justify-center text-white transition-all hover:scale-110"
-                title="Zoom Out"
-              >
-                -
-              </button>
-            </div>
-            
-            <div className="text-xs text-gray-400 flex items-center gap-2">
-              <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-              Drag to rotate • Scroll to zoom
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );
@@ -543,15 +413,14 @@ const ProductCategoriesSection = ({ onCategorySelect }) => {
   ];
 
   return (
-    <section className="py-20 px-6 bg-slate-900">
+    <section className="section-wash py-20 px-6">
       <div className="container mx-auto">
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
             Explore by <span className="text-cyan-400">Category</span>
           </h2>
           <p className="text-xl text-gray-400 max-w-3xl mx-auto">
-            Discover our diverse range of 3D Models across different categories. 
-            Each category showcases unique expertise and creative solutions.
+            Discover our diverse range of 3D models across different categories and jump directly into the work that matters to you.
           </p>
         </div>
 
@@ -560,18 +429,14 @@ const ProductCategoriesSection = ({ onCategorySelect }) => {
             <button
               key={category.id}
               onClick={() => onCategorySelect(category.id)}
-              className="group relative p-6 bg-slate-800/50 rounded-2xl border border-slate-700 backdrop-blur-sm text-left transition-all duration-300 hover:border-cyan-500/50 hover:transform hover:scale-105 hover:shadow-2xl hover:shadow-cyan-500/10 overflow-hidden"
+              className="group relative p-6 bg-slate-800/50 rounded-2xl border border-slate-700 backdrop-blur-sm text-left transition-all duration-300 hover:border-cyan-500/50 hover:scale-105 hover:shadow-2xl hover:shadow-cyan-500/10 overflow-hidden"
             >
-              {/* Animated background gradient */}
               <div className={`absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-500 ${category.gradient}`}></div>
-              
               <div className={`w-16 h-16 bg-gradient-to-br ${category.color} rounded-2xl flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform duration-300 relative z-10`}>
                 {category.icon}
               </div>
-              
               <h3 className="text-xl font-bold text-white mb-2 relative z-10">{category.name}</h3>
               <p className="text-gray-400 text-sm mb-4 relative z-10">{category.description}</p>
-              
               <div className="flex items-center justify-between relative z-10">
                 <span className="text-cyan-400 text-sm font-semibold">{category.count}</span>
                 <div className="w-8 h-8 bg-slate-700 rounded-full flex items-center justify-center group-hover:bg-cyan-500 transition-colors duration-300 group-hover:rotate-45">
@@ -588,79 +453,36 @@ const ProductCategoriesSection = ({ onCategorySelect }) => {
   );
 };
 
-// Interactive 360 Viewer Component with Sketchfab
 const Interactive360Viewer = ({ id, selectedCategory, projects, loading }) => {
   const [selectedProduct, setSelectedProduct] = useState(0);
-  const [viewMode, setViewMode] = useState("sketchfab");
+  const [viewMode, setViewMode] = useState('sketchfab');
   const [rotation, setRotation] = useState({ x: 0, y: 0, z: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const [startPos, setStartPos] = useState({ x: 0, y: 0 });
+
+  const getDefaultEmbed = () => {
+    return '<div class="sketchfab-embed-wrapper"> <iframe title="3D Model" frameborder="0" allowfullscreen mozallowfullscreen="true" webkitallowfullscreen="true" allow="autoplay; fullscreen; xr-spatial-tracking" xr-spatial-tracking execution-while-out-of-viewport execution-while-not-rendered web-share width="640" height="480" src="https://sketchfab.com/models/b8e19c5ab2c6437b9eba38b00c82df65/embed"> </iframe> </div>';
+  };
 
   const getViewerProducts = () => {
     if (!projects || projects.length === 0) {
       return [
         {
           id: 1,
-          name: "Claas Agricultural Equipment",
-          category: "Agricultural Equipment",
-          icon: "🚜",
-          color: "from-yellow-600 to-orange-600",
-          description: "Detailed 3D model of Claas agricultural equipment with realistic textures and materials",
-          price: "Contact for Price",
-          features: ["High Poly Model", "PBR Textures", "Optimized for Rendering", "360° View"],
+          name: 'Claas Agricultural Equipment',
+          category: 'Agricultural Equipment',
+          icon: '🚜',
+          color: 'from-yellow-600 to-orange-600',
+          description: 'Detailed 3D model of Claas agricultural equipment with realistic textures and materials',
+          price: 'Contact for Price',
+          features: ['High Poly Model', 'PBR Textures', 'Optimized for Rendering', '360° View'],
           categoryId: 8,
-          demoEmbed: '<div class="sketchfab-embed-wrapper"> <iframe title="Claas" frameborder="0" allowfullscreen mozallowfullscreen="true" webkitallowfullscreen="true" allow="autoplay; fullscreen; xr-spatial-tracking" xr-spatial-tracking execution-while-out-of-viewport execution-while-not-rendered web-share width="640" height="480" src="https://sketchfab.com/models/b8e19c5ab2c6437b9eba38b00c82df65/embed"> </iframe> </div>'
+          demoEmbed: getDefaultEmbed()
         }
       ];
     }
 
-    return projects.map((project, index) => ({
-      id: project._id || index,
-      name: project.title,
-      category: project.category || "3D Model",
-      icon: getCategoryIcon(project.category),
-      color: getCategoryColor(project.category),
-      description: project.description,
-      price: project.price || "Contact for Price",
-      features: project.technologies || ["3D Model", "High Quality", "360° View"],
-      categoryId: getCategoryId(project.category),
-      projectData: project,
-      demoEmbed: project.demoEmbed || getDefaultEmbed(project.category, index)
-    }));
-  };
-
-  const getCategoryIcon = (category) => {
-    const icons = {
-      '3D Modeling': '🎨',
-      '3D Animation': '🎬',
-      'Architectural Visualization': '🏛️',
-      'Product Design': '📱',
-      'Character Modeling': '👤',
-      'Motion Graphics': '✨',
-      'VFX': '💥',
-      'Game Assets': '🎮',
-      'Agricultural Equipment': '🚜'
-    };
-    return icons[category] || '🎯';
-  };
-
-  const getCategoryColor = (category) => {
-    const colors = {
-      '3D Modeling': 'from-blue-500 to-cyan-500',
-      '3D Animation': 'from-purple-500 to-pink-500',
-      'Architectural Visualization': 'from-green-500 to-emerald-500',
-      'Product Design': 'from-orange-500 to-red-500',
-      'Character Modeling': 'from-yellow-500 to-amber-500',
-      'Motion Graphics': 'from-indigo-500 to-purple-500',
-      'VFX': 'from-red-500 to-pink-500',
-      'Game Assets': 'from-teal-500 to-blue-500',
-      'Agricultural Equipment': 'from-yellow-600 to-orange-600'
-    };
-    return colors[category] || 'from-gray-500 to-slate-500';
-  };
-
-  const getCategoryId = (category) => {
-    const categories = {
+    const categoryIds = {
       '3D Modeling': 0,
       '3D Animation': 1,
       'Architectural Visualization': 2,
@@ -671,23 +493,31 @@ const Interactive360Viewer = ({ id, selectedCategory, projects, loading }) => {
       'Game Assets': 7,
       'Agricultural Equipment': 8
     };
-    return categories[category] || 0;
-  };
 
-  const getDefaultEmbed = (category, index) => {
-    return '<div class="sketchfab-embed-wrapper"> <iframe title="3D Model" frameborder="0" allowfullscreen mozallowfullscreen="true" webkitallowfullscreen="true" allow="autoplay; fullscreen; xr-spatial-tracking" xr-spatial-tracking execution-while-out-of-viewport execution-while-not-rendered web-share width="640" height="480" src="https://sketchfab.com/models/b8e19c5ab2c6437b9eba38b00c82df65/embed"> </iframe> </div>';
+    return projects.map((project, index) => ({
+      id: project._id || index,
+      name: project.title,
+      category: project.category || '3D Model',
+      icon: '🎯',
+      color: 'from-blue-500 to-cyan-500',
+      description: project.description,
+      price: project.price || 'Contact for Price',
+      features: project.technologies || ['3D Model', 'High Quality'],
+      categoryId: categoryIds[project.category] ?? 0,
+      demoEmbed: project.demoEmbed || getDefaultEmbed()
+    }));
   };
 
   const viewerProducts = getViewerProducts();
-  const filteredProducts = selectedCategory !== null 
-    ? viewerProducts.filter(product => product.categoryId === selectedCategory)
+  const filteredProducts = selectedCategory !== null
+    ? viewerProducts.filter((product) => product.categoryId === selectedCategory)
     : viewerProducts;
-
   const currentProduct = filteredProducts[selectedProduct] || viewerProducts[0];
 
-  // Extract iframe src from embed code
   const extractEmbedSrc = (embedCode) => {
-    if (!embedCode) return "https://sketchfab.com/models/b8e19c5ab2c6437b9eba38b00c82df65/embed";
+    if (!embedCode) {
+      return 'https://sketchfab.com/models/b8e19c5ab2c6437b9eba38b00c82df65/embed';
+    }
     const match = embedCode.match(/src="([^"]+)"/);
     return match ? match[1] : embedCode;
   };
@@ -701,16 +531,16 @@ const Interactive360Viewer = ({ id, selectedCategory, projects, loading }) => {
 
   const handleMouseMove = (e) => {
     if (!isDragging) return;
-    
+
     const deltaX = e.clientX - startPos.x;
     const deltaY = e.clientY - startPos.y;
-    
-    setRotation(prev => ({
+
+    setRotation((prev) => ({
       x: prev.x + deltaY * 0.5,
       y: prev.y + deltaX * 0.5,
       z: prev.z
     }));
-    
+
     setStartPos({ x: e.clientX, y: e.clientY });
   };
 
@@ -725,7 +555,7 @@ const Interactive360Viewer = ({ id, selectedCategory, projects, loading }) => {
 
   if (loading) {
     return (
-      <section id={id} className="py-20 px-6 bg-slate-800/50">
+      <section id={id} className="section-wash py-20 px-6">
         <div className="container mx-auto text-center">
           <div className="animate-pulse text-white text-xl">Loading 3D Models...</div>
         </div>
@@ -734,19 +564,18 @@ const Interactive360Viewer = ({ id, selectedCategory, projects, loading }) => {
   }
 
   return (
-    <section id={id} className="py-20 px-6 bg-slate-800/50">
+    <section id={id} className="section-wash py-20 px-6">
       <div className="container mx-auto">
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
             Interactive <span className="text-purple-400">360° Project Viewer</span>
           </h2>
           <p className="text-xl text-gray-400 max-w-3xl mx-auto">
-            {projects.length === 0 
-              ? "No projects yet. Add projects in the admin panel to see them here!"
-              : selectedCategory !== null 
+            {projects.length === 0
+              ? 'No projects yet. Add projects in the admin panel to see them here!'
+              : selectedCategory !== null
                 ? `Exploring ${filteredProducts.length} projects in this category. Click to view in 3D!`
-                : `Viewing all ${filteredProducts.length} projects. Click on a project to view in 3D!`
-            }
+                : `Viewing all ${filteredProducts.length} projects. Click on a project to view in 3D!`}
           </p>
         </div>
 
@@ -755,19 +584,12 @@ const Interactive360Viewer = ({ id, selectedCategory, projects, loading }) => {
             <div className="text-6xl mb-4">📁</div>
             <h3 className="text-2xl font-bold text-white mb-4">No Projects Yet</h3>
             <p className="text-gray-400 mb-6">Add your first project in the admin panel to see it here!</p>
-            <Link 
-              to="/admin" 
-              className="bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-lg text-white font-semibold transition-colors inline-flex items-center"
-            >
+            <Link to="/admin" className="bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-lg text-white font-semibold transition-colors inline-flex items-center">
               Go to Admin Panel
-              <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-              </svg>
             </Link>
           </div>
         ) : (
           <div className="flex flex-col lg:flex-row gap-8 items-stretch">
-            {/* Project Selection Sidebar */}
             <div className="lg:w-1/3">
               <div className="bg-slate-800/50 rounded-2xl p-6 border border-slate-700 backdrop-blur-sm h-full">
                 <div className="flex items-center justify-between mb-6">
@@ -887,13 +709,13 @@ const Interactive360Viewer = ({ id, selectedCategory, projects, loading }) => {
                           title={currentProduct.name}
                           frameBorder="0"
                           allowFullScreen
-                          mozAllowFullScreen="true"
-                          webkitAllowFullScreen="true"
+                          mozallowfullscreen="true"
+                          webkitallowfullscreen="true"
                           allow="autoplay; fullscreen; xr-spatial-tracking"
-                          xr-spatial-tracking
-                          execution-while-out-of-viewport
-                          execution-while-not-rendered
-                          web-share
+                          xr-spatial-tracking="true"
+                          execution-while-out-of-viewport="true"
+                          execution-while-not-rendered="true"
+                          web-share="true"
                           width="100%"
                           height="100%"
                           src={currentEmbedSrc}
@@ -1044,7 +866,7 @@ const EnhancedServicesSection = () => {
   ];
 
   return (
-    <section className="py-20 px-6 bg-slate-900">
+    <section className="section-wash py-20 px-6">
       <div className="container mx-auto">
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
@@ -1103,7 +925,7 @@ const TechnologyStack3D = () => {
   ];
 
   return (
-    <section className="py-20 px-6 bg-slate-800/50">
+    <section className="section-wash py-20 px-6">
       <div className="container mx-auto">
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
@@ -1138,7 +960,7 @@ const TechnologyStack3D = () => {
 // Enhanced CTA Section 3D Component
 const EnhancedCTASection3D = () => {
   return (
-    <section className="py-20 px-6 bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+    <section className="section-wash py-20 px-6">
       <div className="container mx-auto text-center">
         <h2 className="text-4xl md:text-6xl font-bold text-white mb-6">
           Ready to Bring Your

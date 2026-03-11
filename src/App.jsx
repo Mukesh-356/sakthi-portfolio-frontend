@@ -68,9 +68,9 @@ function App() {
           </ul>
         </div>
         
-        <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 text-white flex flex-col">
+        <div className="app-shell min-h-screen text-white flex flex-col">
           <Navbar />
-          <main className="flex-grow">
+          <main className="page-shell flex-grow">
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/projects" element={<Projects />} />

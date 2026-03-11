@@ -213,7 +213,7 @@ const Admin = () => {
 
   if (!isLoggedIn) {
     return (
-      <div className="min-h-screen pt-20 flex items-center justify-center px-6 bg-gradient-to-br from-slate-900 to-slate-800">
+      <div className="page-shell min-h-screen pt-24 flex items-center justify-center px-6 sm:pt-28">
         <div className="glass-effect p-8 rounded-2xl max-w-md w-full border border-slate-700">
           <div className="text-center mb-8">
             <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -266,7 +266,7 @@ const Admin = () => {
   }
 
   return (
-    <div className="min-h-screen pt-20 px-6 py-8 bg-gradient-to-br from-slate-900 to-slate-800">
+    <div className="page-shell min-h-screen pt-24 px-6 py-8 sm:pt-28">
       <div className="container mx-auto max-w-6xl">
         {/* Header */}
         <div className="flex justify-between items-center mb-8">

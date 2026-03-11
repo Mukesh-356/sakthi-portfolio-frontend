@@ -78,7 +78,7 @@ const Projects = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen pt-20 px-6 py-8 bg-gradient-to-br from-slate-900 to-slate-800">
+      <div className="page-shell min-h-screen pt-24 px-6 py-8 sm:pt-28">
         {/* Hidden SEO Content */}
         <div className="seo-rich-content" style={{ display: 'none' }}>
           <h1>3D Projects Portfolio - ArtIn3D</h1>
@@ -109,7 +109,7 @@ const Projects = () => {
         </ul>
       </div>
 
-      <div className="min-h-screen pt-20 px-4 sm:px-6 py-8 bg-gradient-to-br from-slate-900 to-slate-800">
+      <div className="page-shell min-h-screen pt-24 px-4 py-8 sm:px-6 sm:pt-28">
         <div className="container mx-auto">
           <header className="text-center mb-12">
             <h1 className="text-4xl sm:text-5xl font-bold mb-4 text-white">
