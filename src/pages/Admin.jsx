@@ -22,6 +22,10 @@ const Admin = () => {
   const [editingProject, setEditingProject] = useState(null);
   const [activeTab, setActiveTab] = useState('add');
   
+  // Technology state
+  const [technologies, setTechnologies] = useState([]);
+  const [newTech, setNewTech] = useState({ name: '', logo: '' });
+
   // Import functionality state
   const [importData, setImportData] = useState({
     platform: 'sketchfab',
@@ -39,6 +43,7 @@ const Admin = () => {
       setUser(JSON.parse(userData));
       setIsLoggedIn(true);
       fetchProjects();
+      fetchTechnologies();
     }
   }, []);
 
@@ -86,6 +91,63 @@ const Admin = () => {
       setProjects(res.data);
     } catch (error) {
       console.error('Error fetching projects:', error);
+    }
+  };
+
+  const fetchTechnologies = async () => {
+    try {
+      const res = await axios.get(`${API_BASE_URL}/api/technologies`);
+      setTechnologies(res.data);
+    } catch (error) {
+      console.error('Error fetching technologies:', error);
+    }
+  };
+
+  const handleAddTechnology = async (e) => {
+    e.preventDefault();
+    if (!newTech.logo) {
+      return alert('Please upload a logo image.');
+    }
+    try {
+      const token = localStorage.getItem('token');
+      await axios.post(`${API_BASE_URL}/api/technologies`, newTech, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setNewTech({ name: '', logo: '' });
+      fetchTechnologies();
+      alert('Technology added successfully!');
+    } catch (error) {
+      alert(error.response?.data?.message || 'Error adding technology');
+    }
+  };
+
+  const handleDeleteTechnology = async (id) => {
+    if (window.confirm('Are you sure you want to delete this technology?')) {
+      try {
+        const token = localStorage.getItem('token');
+        await axios.delete(`${API_BASE_URL}/api/technologies/${id}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        fetchTechnologies();
+        alert('Technology deleted successfully!');
+      } catch (error) {
+        alert('Error deleting technology');
+      }
+    }
+  };
+
+  const handleLogoUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Validate file size (e.g. max 2MB)
+      if (file.size > 2 * 1024 * 1024) {
+        return alert('Image size should be less than 2MB');
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setNewTech({ ...newTech, logo: reader.result });
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -317,6 +379,16 @@ const Admin = () => {
             }`}
           >
             📋 Manage Projects
+          </button>
+          <button
+            onClick={() => setActiveTab('technologies')}
+            className={`px-6 py-3 font-semibold border-b-2 transition-colors ${
+              activeTab === 'technologies' 
+                ? 'text-blue-400 border-blue-400' 
+                : 'text-gray-400 border-transparent hover:text-white'
+            }`}
+          >
+            ⚙️ Manage Technologies
           </button>
           {editingProject && (
             <button
@@ -732,6 +804,79 @@ const Admin = () => {
                         </a>
                       )}
                     </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Manage Technologies */}
+        {activeTab === 'technologies' && (
+          <div className="glass-effect p-8 rounded-2xl border border-slate-700">
+            <h2 className="text-2xl font-bold mb-6">Manage Technologies</h2>
+            
+            {/* Add Technology Form */}
+            <form onSubmit={handleAddTechnology} className="mb-10 bg-slate-800 p-6 rounded-xl border border-slate-700">
+              <h3 className="text-lg font-semibold mb-4 text-blue-400">Add New Technology</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium mb-2 text-gray-300">Technology Name *</label>
+                  <input
+                    type="text"
+                    value={newTech.name}
+                    onChange={(e) => setNewTech({...newTech, name: e.target.value})}
+                    className="w-full px-4 py-3 bg-slate-900 rounded-lg border border-slate-700 focus:border-blue-500 focus:outline-none transition-colors"
+                    placeholder="e.g., Blender, Maya"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2 text-gray-300">Logo Image *</label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleLogoUpload}
+                    className="w-full px-4 py-2 bg-slate-900 rounded-lg border border-slate-700 focus:border-blue-500 focus:outline-none transition-colors"
+                    required
+                  />
+                  <p className="text-xs text-gray-400 mt-1">PNG, JPG, SVG max 2MB.</p>
+                </div>
+              </div>
+              {newTech.logo && (
+                <div className="mt-4">
+                  <p className="text-sm text-gray-400 mb-2">Preview:</p>
+                  <div className="w-16 h-16 rounded-xl bg-slate-900 border border-slate-700 flex items-center justify-center p-2">
+                    <img src={newTech.logo} alt="Preview" className="max-w-full max-h-full object-contain" />
+                  </div>
+                </div>
+              )}
+              <button
+                type="submit"
+                className="mt-6 bg-blue-600 hover:bg-blue-700 px-6 py-2 rounded-lg font-semibold transition-colors"
+              >
+                Add Technology
+              </button>
+            </form>
+
+            {/* List Technologies */}
+            <h3 className="text-xl font-semibold mb-4">Current Technologies</h3>
+            {technologies.length === 0 ? (
+              <p className="text-gray-400">No technologies added yet.</p>
+            ) : (
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                {technologies.map((tech) => (
+                  <div key={tech._id} className="bg-slate-800 rounded-xl p-4 border border-slate-700 flex flex-col items-center group">
+                    <div className="w-16 h-16 rounded-xl bg-slate-900 border border-slate-700 mb-3 flex items-center justify-center p-3">
+                      <img src={tech.logo} alt={tech.name} className="max-w-full max-h-full object-contain" />
+                    </div>
+                    <p className="text-sm font-semibold text-center mb-3 text-white">{tech.name}</p>
+                    <button
+                      onClick={() => handleDeleteTechnology(tech._id)}
+                      className="opacity-0 group-hover:opacity-100 mt-auto bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white px-3 py-1 rounded text-xs transition-all w-full"
+                    >
+                      Delete
+                    </button>
                   </div>
                 ))}
               </div>

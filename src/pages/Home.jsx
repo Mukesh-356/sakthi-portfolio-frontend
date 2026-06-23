@@ -282,7 +282,7 @@ const Home = () => {
               </h1>
 
               <p className="text-lg sm:text-xl text-slate-700 mb-8 max-w-2xl leading-relaxed">
-                Clean presentation, strong detail, and immersive 3D storytelling. Explore curated work across product visualization, concept design, and interactive model experiences.
+                Delivering high-end 3D visualizations with uncompromising attention to detail and realism. Explore a curated portfolio spanning architectural visualization, advanced product prototyping, and immersive digital storytelling.
               </p>
 
               <div className="floating-element hero-metric-card hero-shimmer mb-8 max-w-3xl rounded-[2rem] border border-orange-500/20 bg-white/55 px-6 py-5 backdrop-blur-md shadow-[0_24px_60px_rgba(120,53,15,0.12)]">
@@ -523,7 +523,24 @@ const EnhancedServicesSection = () => {
 
 // Technology Stack 3D Component
 const TechnologyStack3D = () => {
-  const technologies = [
+  const [technologies, setTechnologies] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchTechnologies = async () => {
+      try {
+        const res = await axios.get('https://sakthi-portfolio-backend.onrender.com/api/technologies');
+        setTechnologies(res.data);
+      } catch (error) {
+        console.error('Error fetching technologies:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchTechnologies();
+  }, []);
+
+  const defaultTechnologies = [
     { name: "Blender", icon: "💎", color: "from-orange-500 to-red-500" },
     { name: "3DS Max", icon: "🔷", color: "from-blue-500 to-purple-500" },
     { name: "ZBrush", icon: "✏️", color: "from-gray-500 to-slate-500" },
@@ -533,6 +550,8 @@ const TechnologyStack3D = () => {
     { name: "Maya", icon: "🌀", color: "from-cyan-500 to-blue-500" },
     { name: "Unity", icon: "🎮", color: "from-gray-400 to-gray-600" }
   ];
+
+  const displayTech = technologies.length > 0 ? technologies : defaultTechnologies;
 
   return (
     <section className="section-wash py-20 px-6">
@@ -546,22 +565,30 @@ const TechnologyStack3D = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          {technologies.map((tech, index) => (
-            <div 
-              key={index}
-              className="group relative p-6 bg-slate-800/50 rounded-2xl border border-slate-700 backdrop-blur-sm text-center transition-all duration-300 hover:border-orange-500/50 hover:transform hover:scale-110 hover:shadow-2xl hover:shadow-orange-500/10 overflow-hidden"
-            >
-              {/* Background gradient */}
-              <div className={`absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-500 bg-gradient-to-br ${tech.color}`}></div>
-              
-              <div className={`w-16 h-16 bg-gradient-to-br ${tech.color} rounded-2xl flex items-center justify-center text-2xl mb-4 mx-auto group-hover:scale-125 transition-transform duration-300 relative z-10`}>
-                {tech.icon}
+        {loading ? (
+          <div className="flex justify-center"><div className="w-10 h-10 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div></div>
+        ) : (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {displayTech.map((tech, index) => (
+              <div 
+                key={tech._id || index}
+                className="group relative p-6 bg-slate-800/50 rounded-2xl border border-slate-700 backdrop-blur-sm text-center transition-all duration-300 hover:border-orange-500/50 hover:transform hover:scale-110 hover:shadow-2xl hover:shadow-orange-500/10 overflow-hidden"
+              >
+                {/* Background gradient */}
+                <div className={`absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-500 bg-gradient-to-br ${tech.color || 'from-orange-500 to-red-500'}`}></div>
+                
+                <div className={`w-16 h-16 bg-gradient-to-br ${tech.color || 'from-slate-700 to-slate-800'} rounded-2xl flex items-center justify-center text-2xl mb-4 mx-auto group-hover:scale-125 transition-transform duration-300 relative z-10 overflow-hidden p-2`}>
+                  {tech.logo ? (
+                    <img src={tech.logo} alt={tech.name} className="w-full h-full object-contain" />
+                  ) : (
+                    tech.icon
+                  )}
+                </div>
+                <div className="text-white font-semibold relative z-10">{tech.name}</div>
               </div>
-              <div className="text-white font-semibold relative z-10">{tech.name}</div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );
