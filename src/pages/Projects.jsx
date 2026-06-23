@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import axios from 'axios';
+import Interactive360Viewer from '../components/Interactive360Viewer';
 
 const API_BASE_URL = 'https://sakthi-portfolio-backend.onrender.com';
 
@@ -131,6 +132,16 @@ const Projects = () => {
               </button>
             </div>
           )}
+
+          {/* Interactive 360 Viewer */}
+          <div className="mb-16">
+            <Interactive360Viewer 
+              id="360-viewer-section" 
+              selectedCategory={null}
+              projects={projects}
+              loading={loading}
+            />
+          </div>
 
           {/* Filter Buttons */}
           <div className="flex flex-wrap justify-center gap-3 mb-12">

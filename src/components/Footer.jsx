@@ -42,7 +42,7 @@ const Footer = () => {
                   Start a Project
                 </Link>
                 <a
-                  href="https://drive.google.com/file/d/1ZugLfPpdKJZpxFu9qb_INK8T5YHrbVPn/view?usp=sharing"
+                  href="https://drive.google.com/file/d/16mIY5lJwHHl6lEidPj2pQiHhRTz9GkE3/view?usp=drivesdk"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="rounded-full border border-white/10 px-5 py-3 text-center text-sm font-semibold text-white transition-colors duration-300 hover:bg-white/5"

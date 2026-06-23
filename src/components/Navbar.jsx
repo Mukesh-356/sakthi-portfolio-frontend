@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { gsap } from 'gsap';
 import { useAuth } from '../hooks/useAuth';
 
-const RESUME_URL = 'https://drive.google.com/file/d/1ZugLfPpdKJZpxFu9qb_INK8T5YHrbVPn/view?usp=sharing';
+const RESUME_URL = 'https://drive.google.com/file/d/16mIY5lJwHHl6lEidPj2pQiHhRTz9GkE3/view?usp=drivesdk';
 
 const Navbar = () => {
   const navRef = useRef(null);
@@ -26,8 +26,8 @@ const Navbar = () => {
     []
   );
 
-  const resourceLinks = useMemo(
-    () => [
+  const resourceLinks = useMemo(() => {
+    const links = [
       {
         label: 'Resume',
         description: 'Capabilities, tools, and recent experience.',
@@ -41,17 +41,21 @@ const Navbar = () => {
         href: '/projects',
         external: false,
         badge: 'Route'
-      },
-      {
-        label: user ? 'Admin Dashboard' : 'Admin Login',
+      }
+    ];
+
+    if (user) {
+      links.push({
+        label: 'Admin Dashboard',
         description: 'Manage uploads, cases, and portfolio content.',
         href: '/admin',
         external: false,
         badge: 'Secure'
-      }
-    ],
-    [user]
-  );
+      });
+    }
+
+    return links;
+  }, [user]);
 
   useEffect(() => {
     const tl = gsap.timeline();
@@ -147,9 +151,9 @@ const Navbar = () => {
             }`}
           >
             <div className="flex items-center justify-between gap-3 px-4 py-2.5 sm:px-5">
-              <Link ref={brandRef} to="/" className="group relative flex items-center gap-4">
-                <div className="relative">
-                  <div className="h-10 w-10 overflow-hidden rounded-xl border border-white/15 bg-white/10 shadow-[0_0_0_1px_rgba(255,255,255,0.04)] transition-transform duration-500 group-hover:scale-105 group-hover:-rotate-3 sm:h-11 sm:w-11">
+              <div ref={brandRef} className="group relative flex items-center gap-4">
+                <Link to="/admin" className="relative z-10 block" title="Admin Login">
+                  <div className="h-10 w-10 overflow-hidden rounded-xl border border-white/15 bg-white/10 shadow-[0_0_0_1px_rgba(255,255,255,0.04)] transition-transform duration-500 hover:scale-105 hover:-rotate-3 sm:h-11 sm:w-11">
                     <img
                       src="/mainlogo.jpg"
                       alt="Artin3D Logo"
@@ -157,9 +161,9 @@ const Navbar = () => {
                     />
                   </div>
                   <div className="absolute inset-0 -z-10 rounded-2xl bg-gradient-to-br from-cyan-400/30 to-amber-300/30 blur-xl transition-opacity duration-500 group-hover:opacity-100"></div>
-                </div>
+                </Link>
 
-                <div className="flex flex-col">
+                <Link to="/" className="flex flex-col">
                   <span className="text-lg font-bold tracking-tight text-white transition-colors duration-300 group-hover:text-cyan-100 sm:text-xl">
                     ArtIn3D
                   </span>
@@ -168,8 +172,8 @@ const Navbar = () => {
                     <span className="hidden h-1 w-1 rounded-full bg-cyan-300 sm:block"></span>
                     <span className="hidden sm:block text-cyan-200/80">Available</span>
                   </div>
-                </div>
-              </Link>
+                </Link>
+              </div>
 
               <div className="hidden lg:flex items-center gap-3">
                 <div className="flex items-center gap-2 rounded-full border border-white/10 bg-slate-950/30 px-2 py-1.5 backdrop-blur-xl">
@@ -275,7 +279,7 @@ const Navbar = () => {
                   )}
                 </div>
 
-                {user ? (
+                {user && (
                   <div className="nav-item flex items-center gap-3">
                     <Link
                       to="/admin"
@@ -290,13 +294,6 @@ const Navbar = () => {
                       Logout
                     </button>
                   </div>
-                ) : (
-                  <Link
-                    to="/admin"
-                    className="nav-item rounded-full bg-gradient-to-r from-amber-300 via-orange-300 to-cyan-300 px-4 py-2.5 text-sm font-bold text-slate-950 transition-all duration-300 hover:scale-[1.03] hover:shadow-[0_20px_45px_rgba(251,191,36,0.28)]"
-                  >
-                    Admin Login
-                  </Link>
                 )}
               </div>
 
@@ -400,7 +397,7 @@ const Navbar = () => {
             </div>
 
             <div className="mt-auto pt-8">
-              {user ? (
+              {user && (
                 <div className="space-y-3">
                   <Link
                     to="/admin"
@@ -419,14 +416,6 @@ const Navbar = () => {
                     Logout
                   </button>
                 </div>
-              ) : (
-                <Link
-                  to="/admin"
-                  className="block rounded-full bg-gradient-to-r from-amber-300 via-orange-300 to-cyan-300 px-5 py-3 text-center text-sm font-bold text-slate-950"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  Admin Login
-                </Link>
               )}
             </div>
           </div>
